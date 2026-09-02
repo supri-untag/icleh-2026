@@ -51,6 +51,10 @@ class Speaker extends Model
             return $photo;
         }
 
+        if (Str::startsWith($photo, ['speakers/', 'storage/speakers/'])) {
+            return route('speaker.photo', ['filename' => basename($photo)], false);
+        }
+
         if (Str::startsWith($photo, 'storage/')) {
             return asset($photo);
         }

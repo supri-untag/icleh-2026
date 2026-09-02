@@ -15,9 +15,13 @@ use App\Http\Controllers\Participant\ProfileController;
 use App\Http\Controllers\Participant\RegistrationController;
 use App\Http\Controllers\Participant\SubmissionController;
 use App\Http\Controllers\PublicPageController;
+use App\Http\Controllers\SpeakerPhotoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PublicPageController::class, 'home'])->name('home');
+Route::get('/storage/speakers/{filename}', SpeakerPhotoController::class)
+    ->where('filename', '[A-Za-z0-9._-]+')
+    ->name('speaker.photo');
 
 foreach ([
     'about',
