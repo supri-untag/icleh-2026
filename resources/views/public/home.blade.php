@@ -165,8 +165,8 @@
             <div class="grid items-center gap-10 md:grid-cols-2">
                 <div class="lg:pl-14">
                     <span class="landing-kicker">Registration</span>
-                    <h2 class="mt-5 text-3xl font-semibold text-darken lg:pr-24">Registration categories and payment flow</h2>
-                    <p class="my-4 leading-8 text-gray-500 lg:pr-20">Choose participant type, complete your account, upload payment proof, and submit an abstract through the participant dashboard.</p>
+                    <h2 class="mt-5 text-3xl font-semibold text-darken lg:pr-24">Join ICLEH 2026 and share your work on an international stage</h2>
+                    <p class="my-4 leading-8 text-gray-500 lg:pr-20">Secure your place in a hybrid forum for researchers, professionals, and policy voices across law, economy, health, and artificial intelligence. Select your category, confirm your registration, and bring your abstract into the ICLEH 2026 program.</p>
                     <div class="flex flex-wrap gap-3">
                         <a href="{{ route('register') }}" class="landing-button landing-button-primary">Register Now</a>
                         <a href="{{ route('registration') }}" class="landing-button border border-yellow-500 text-yellow-500">View Fees</a>

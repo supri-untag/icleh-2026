@@ -2,6 +2,7 @@
 
 @section('title', ($page?->meta_title ?? ucwords(str_replace('-', ' ', $slug))).' - ICLEH 2026')
 @section('meta_description', $page?->meta_description ?? $conference->meta_description)
+@section('header_variant', 'home')
 
 @section('content')
     <section

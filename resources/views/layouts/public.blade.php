@@ -12,6 +12,7 @@
 <body class="font-sans antialiased">
     @php
         $isHomePage = request()->routeIs('home');
+        $usesHomeHeader = $isHomePage || trim($__env->yieldContent('header_variant', '')) === 'home';
         $brandLogo = Vite::asset('resources/images/LOGO ICLEH.png');
         $conferenceMenu = [
             'about' => 'About',
@@ -32,17 +33,17 @@
             'publication' => 'Publication',
             'announcements.index' => 'Announcements',
         ];
-        $headerClass = $isHomePage
+        $headerClass = $usesHomeHeader
             ? 'landing-header-home fixed inset-x-0 top-0 z-50 bg-transparent text-white'
             : 'fixed inset-x-0 top-0 z-50 bg-cream text-gray-700 shadow-sm';
-        $mobileMenuClass = $isHomePage
+        $mobileMenuClass = $usesHomeHeader
             ? 'border border-white/20 bg-white/15 text-white'
             : 'bg-white text-gray-900 shadow-sm';
-        $navLinkClass = $isHomePage
+        $navLinkClass = $usesHomeHeader
             ? 'text-white/85 hover:text-white'
             : 'text-gray-700 hover:text-gray-900';
-        $navActiveClass = $isHomePage ? 'text-icleh-gold-light' : 'text-yellow-500';
-        $portalButtonClass = $isHomePage
+        $navActiveClass = $usesHomeHeader ? 'text-icleh-gold-light' : 'text-yellow-500';
+        $portalButtonClass = $usesHomeHeader
             ? 'ml-5 border border-white/25 bg-white/15 px-9 py-3 text-white'
             : 'landing-button-light ml-5 px-9 py-3';
     @endphp
@@ -125,7 +126,7 @@
         </div>
     </header>
 
-    <main class="{{ $isHomePage ? '' : 'pt-20 md:pt-28' }}">
+    <main class="{{ $usesHomeHeader ? '' : 'pt-20 md:pt-28' }}">
         @yield('content')
     </main>
 
