@@ -8,8 +8,11 @@ use App\Http\Requests\Participant\PaymentProofRequest;
 use App\Models\Registration;
 use App\Services\ConferenceContext;
 use App\Services\PaymentService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PaymentController extends Controller
 {
@@ -30,7 +33,25 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function store(PaymentProofRequest $request): RedirectResponse
+    public function proof(): StreamedResponse
+    {
+        $conference = $this->conferenceContext->current();
+        $registration = $this->currentRegistration($conference->id);
+        $payment = $registration?->payment;
+        $proofPath = $payment?->proof_file;
+
+        abort_unless($proofPath, 404);
+
+        $disk = Storage::disk((string) config('filesystems.default', 'local'));
+
+        abort_unless($disk->exists($proofPath), 404);
+
+        return $disk->response($proofPath, basename($proofPath), [
+            'Cache-Control' => 'private, max-age=0, must-revalidate',
+        ]);
+    }
+
+    public function store(PaymentProofRequest $request): RedirectResponse|JsonResponse
     {
         $conference = $this->conferenceContext->current();
         $registration = $this->currentRegistration($conference->id);
@@ -42,6 +63,13 @@ class PaymentController extends Controller
             $registration,
             PaymentProofData::fromArray($request->validated()),
         );
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Payment proof submitted.',
+                'redirect_url' => route('participant.payment'),
+            ]);
+        }
 
         return back()->with('status', 'Payment proof submitted.');
     }

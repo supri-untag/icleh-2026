@@ -6,9 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <title>@yield('title', 'Participant Dashboard - ICLEH 2026')</title>
-    @vite(['resources/css/app.css', 'resources/scss/admin.scss', 'resources/js/admin.js'])
+    @vite(['resources/scss/admin.scss', 'resources/js/admin.js'])
 </head>
-<body class="admin-shell">
+<body class="admin-shell participant-shell">
     @php
         $user = auth()->user();
         $participantMenu = [
@@ -98,11 +98,18 @@
         </ul>
     </aside>
 
-    <main id="content" class="content py-10">
+    <main id="content" class="content">
         <div class="container-fluid">
-            <div class="mb-4">
-                <p class="text-uppercase text-primary fw-semibold small mb-1">Participant Portal</p>
-                <h1 class="fs-3 mb-0">@yield('heading', 'Dashboard')</h1>
+            <div class="mb-4 d-flex flex-wrap align-items-end justify-content-between gap-3">
+                <div>
+                    <p class="text-uppercase text-primary fw-semibold small mb-1">Participant Portal</p>
+                    <h1 class="fs-3 mb-0">@yield('heading', 'Dashboard')</h1>
+                </div>
+                @hasSection('actions')
+                    <div class="d-flex flex-wrap gap-2">
+                        @yield('actions')
+                    </div>
+                @endif
             </div>
             @if (session('status'))
                 <div class="alert alert-success">{{ session('status') }}</div>

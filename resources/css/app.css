@@ -126,7 +126,6 @@ body {
     background-position: center;
     background-size: cover;
     content: '';
-    filter: grayscale(1);
     transform: scale(1.03);
 }
 
@@ -134,7 +133,7 @@ body {
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: rgb(0 0 0 / 0.64);
+    background: rgb(0 0 0 / 0.46);
     content: '';
 }
 

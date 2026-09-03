@@ -72,6 +72,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/participant/registration', [RegistrationController::class, 'show'])->name('participant.registration');
     Route::post('/participant/registration', [RegistrationController::class, 'store'])->name('participant.registration.store');
     Route::get('/payment', [PaymentController::class, 'show'])->name('participant.payment');
+    Route::get('/payment/proof', [PaymentController::class, 'proof'])->name('participant.payment.proof');
     Route::post('/payment', [PaymentController::class, 'store'])->name('participant.payment.store');
     Route::get('/submissions', [SubmissionController::class, 'index'])->name('participant.submissions');
     Route::get('/submissions/create', [SubmissionController::class, 'create'])->name('participant.submissions.create');

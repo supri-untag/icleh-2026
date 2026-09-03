@@ -12,14 +12,14 @@
             ['LoA status', $submission?->loaDocument ? 'Issued' : 'Not issued', 'ti-file-certificate', 'success'],
         ] as [$label, $value, $icon, $tone])
             <div class="col-12 col-md-6 col-xl-3">
-                <div class="card admin-stat-card p-4 bg-{{ $tone }} bg-opacity-10 border border-{{ $tone }} border-opacity-25 rounded-2">
-                    <div class="d-flex gap-3">
-                        <div class="icon-shape icon-md bg-{{ $tone }} text-white rounded-2">
+                <div class="card participant-card participant-stat-card h-100 bg-{{ $tone }} bg-opacity-10 border border-{{ $tone }} border-opacity-25 rounded-2">
+                    <div class="card-body d-flex gap-3">
+                        <div class="icon-shape bg-{{ $tone }} text-white rounded-2 flex-shrink-0">
                             <i class="ti {{ $icon }} fs-4"></i>
                         </div>
-                        <div>
-                            <h2 class="mb-3 fs-6">{{ $label }}</h2>
-                            <h3 class="fw-bold mb-0">{{ $value }}</h3>
+                        <div class="min-w-0">
+                            <h2 class="mb-3 fs-6 text-secondary">{{ $label }}</h2>
+                            <h3 class="fw-bold mb-1 h5 text-break-balanced">{{ $value }}</h3>
                             <p class="text-{{ $tone }} mb-0 small">ICLEH 2026</p>
                         </div>
                     </div>
@@ -37,8 +37,8 @@
                 <div class="list-group list-group-flush">
                     @foreach (['Register account', 'Complete profile', 'Choose registration fee', 'Upload payment proof', 'Submit abstract', 'Review and LoA', 'Conference attendance', 'Certificate'] as $item)
                         <div class="list-group-item d-flex align-items-center gap-3">
-                            <span class="icon-shape bg-primary text-white rounded-2 fw-bold">{{ $loop->iteration }}</span>
-                            <span class="fw-semibold">{{ $item }}</span>
+                            <span class="btn-icon bg-primary text-white rounded-2 fw-bold flex-shrink-0">{{ $loop->iteration }}</span>
+                            <span class="fw-semibold text-break-balanced">{{ $item }}</span>
                         </div>
                     @endforeach
                 </div>
@@ -50,9 +50,15 @@
                     <h2 class="h5 mb-0">Next Actions</h2>
                 </div>
                 <div class="card-body d-flex flex-column align-items-stretch gap-2">
-                    <a class="btn btn-sm btn-primary fw-semibold" href="{{ route('participant.registration') }}">Manage Registration</a>
-                    <a class="btn btn-sm btn-outline-primary fw-semibold" href="{{ route('participant.payment') }}">Upload Payment Proof</a>
-                    <a class="btn btn-sm btn-outline-primary fw-semibold" href="{{ route('participant.submissions.create') }}">Submit Abstract</a>
+                    <a class="btn btn-primary fw-semibold" href="{{ route('participant.registration') }}">
+                        <i class="ti ti-clipboard-list me-1"></i>Manage Registration
+                    </a>
+                    <a class="btn btn-outline-primary fw-semibold" href="{{ route('participant.payment') }}">
+                        <i class="ti ti-credit-card me-1"></i>Upload Payment Proof
+                    </a>
+                    <a class="btn btn-outline-primary fw-semibold" href="{{ route('participant.submissions.create') }}">
+                        <i class="ti ti-file-plus me-1"></i>Submit Abstract
+                    </a>
                 </div>
             </section>
         </div>

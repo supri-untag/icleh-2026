@@ -7,7 +7,7 @@
 @section('content')
     <section
         class="relative isolate overflow-hidden bg-darken text-white"
-        style="background-image: linear-gradient(90deg, rgb(0 0 0 / 0.72), rgb(0 0 0 / 0.42)), url('{{ Vite::asset('resources/images/banner_page.jpg') }}'); background-position: center; background-size: cover;">
+        style="background-image: linear-gradient(90deg, rgb(0 0 0 / 0.52), rgb(0 0 0 / 0.24)), url('{{ Vite::asset('resources/images/banner_page.jpg') }}'); background-position: center; background-size: cover;">
         <div class="mx-auto max-w-screen-xl px-8 py-24 md:py-28">
             <div class="max-w-3xl">
                 <p class="text-sm font-bold uppercase tracking-widest text-icleh-gold-light">ICLEH 2026</p>
@@ -139,7 +139,10 @@
                             <p class="mt-4 leading-7 text-gray-500">{{ $conference->venue?->address ?? $conference->location }}</p>
                             <p class="mt-4 leading-7 text-gray-500">{{ $conference->venue?->description }}</p>
                         </div>
-                        <img src="{{ $landingImage('teacher-explaining.png') }}" alt="" class="w-full rounded-2xl object-cover shadow-xl">
+                        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+                            <img src="{{ Vite::asset('resources/images/bg-1.jpeg') }}" alt="Gedung UNTAG Semarang tampak depan" class="h-64 w-full rounded-2xl object-cover shadow-xl">
+                            <img src="{{ Vite::asset('resources/images/bg-2.jpeg') }}" alt="Gedung UNTAG Semarang dari sisi samping" class="h-64 w-full rounded-2xl object-cover shadow-xl">
+                        </div>
                     </div>
                     @break
 

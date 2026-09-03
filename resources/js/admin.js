@@ -72,6 +72,111 @@ document.querySelectorAll('[data-admin-table]').forEach((table) => {
     }
 });
 
+const paymentUploadMessage = (response) => {
+    if (typeof response === 'string') {
+        return response;
+    }
+
+    if (response?.errors) {
+        return Object.values(response.errors).flat().shift() || 'The payment proof could not be uploaded.';
+    }
+
+    return response?.message || 'The payment proof could not be uploaded.';
+};
+
+document.querySelectorAll('[data-payment-dropzone]').forEach((dropzoneElement) => {
+    const form = dropzoneElement.closest('form');
+    const fallbackInput = form?.querySelector('[data-payment-proof-fallback]');
+    const submitButton = form?.querySelector('[data-payment-submit]');
+
+    if (!form || dropzoneElement.dropzone) {
+        return;
+    }
+
+    fallbackInput?.removeAttribute('required');
+    fallbackInput?.removeAttribute('name');
+    fallbackInput?.classList.add('d-none');
+
+    const defaultSubmitHtml = submitButton?.innerHTML;
+    const paymentDropzone = new Dropzone(dropzoneElement, {
+        acceptedFiles: 'application/pdf,image/jpeg,image/png,image/webp,.pdf,.jpg,.jpeg,.png,.webp',
+        addRemoveLinks: true,
+        autoProcessQueue: false,
+        dictDefaultMessage: 'Drop payment proof here',
+        dictMaxFilesExceeded: 'Only one proof file can be uploaded.',
+        dictRemoveFile: 'Remove file',
+        headers: {
+            Accept: 'application/json',
+            ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}),
+        },
+        maxFiles: 1,
+        maxFilesize: 4,
+        method: form.getAttribute('method') || 'post',
+        paramName: 'proof_file',
+        parallelUploads: 1,
+        url: form.getAttribute('action'),
+    });
+
+    paymentDropzone.on('addedfile', () => {
+        if (paymentDropzone.files.length > 1) {
+            paymentDropzone.removeFile(paymentDropzone.files[0]);
+        }
+    });
+
+    paymentDropzone.on('sending', (file, xhr, formData) => {
+        formData.append('_token', csrfToken || form.querySelector('[name="_token"]')?.value || '');
+        formData.append('paid_at', form.querySelector('[name="paid_at"]')?.value || '');
+        formData.append('notes', form.querySelector('[name="notes"]')?.value || '');
+
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Uploading';
+        }
+    });
+
+    paymentDropzone.on('success', (file, response) => {
+        window.location.href = response?.redirect_url || window.location.href;
+    });
+
+    paymentDropzone.on('error', async (file, response) => {
+        await Swal.fire({
+            title: 'Upload failed',
+            text: paymentUploadMessage(response),
+            icon: 'error',
+            confirmButtonColor: '#c60000',
+        });
+    });
+
+    paymentDropzone.on('complete', () => {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerHTML = defaultSubmitHtml;
+        }
+    });
+
+    form.addEventListener('submit', (event) => {
+        if (!form.matches('[data-payment-form]')) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (paymentDropzone.getQueuedFiles().length === 0) {
+            Swal.fire({
+                title: 'Proof file required',
+                text: 'Please choose a payment proof file before submitting.',
+                icon: 'warning',
+                confirmButtonColor: '#c60000',
+            });
+
+            return;
+        }
+
+        paymentDropzone.processQueue();
+    });
+});
+
 document.addEventListener('click', async (event) => {
     const button = event.target.closest('[data-table-action]');
 
