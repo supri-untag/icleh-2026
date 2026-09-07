@@ -46,10 +46,10 @@ class MailService
         }
 
         $pendingMail->send(new ConferenceTemplateMail(
-            subject: $content['subject'],
-            html: $content['html'],
-            text: $content['text'],
-            attachments: $data->attachments,
+            mailSubject: $content['subject'],
+            htmlContent: $content['html'],
+            textContent: $content['text'],
+            mailAttachments: $data->attachments,
         ));
 
         $this->mailLogService->markSent($mailLog);

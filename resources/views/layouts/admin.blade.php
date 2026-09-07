@@ -110,6 +110,7 @@
             <li><a class="nav-link {{ request()->routeIs('admin.content.partners') || $crudResource === 'partners' ? 'active' : '' }}" href="{{ route('admin.content.partners') }}"><i class="ti ti-building-community"></i><span class="nav-text">Partners</span></a></li>
 
             <li class="px-4 pt-4 pb-2"><small class="nav-text text-uppercase text-secondary">Participants</small></li>
+            <li><a class="nav-link {{ request()->routeIs('admin.attendance.*') ? 'active' : '' }}" href="{{ route('admin.attendance.index') }}"><i class="ti ti-qrcode"></i><span class="nav-text">Attendance QR</span></a></li>
             <li><a class="nav-link {{ request()->routeIs('admin.participants.registrations') ? 'active' : '' }}" href="{{ route('admin.participants.registrations') }}"><i class="ti ti-users"></i><span class="nav-text">Registrations</span></a></li>
             <li><a class="nav-link {{ request()->routeIs('admin.participants.payments') || request()->routeIs('admin.payments.index') ? 'active' : '' }}" href="{{ route('admin.participants.payments') }}"><i class="ti ti-credit-card"></i><span class="nav-text">Payments</span></a></li>
 

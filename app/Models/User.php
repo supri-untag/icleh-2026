@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\UserRole;
 use App\Models\Concerns\HasUuid;
+use App\Notifications\QueuedVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -22,6 +23,11 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasUuid, Notifiable;
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify((new QueuedVerifyEmail)->afterCommit());
+    }
 
     public function profile(): HasOne
     {

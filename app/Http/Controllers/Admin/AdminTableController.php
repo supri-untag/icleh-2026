@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\AuditLog;
@@ -74,6 +75,7 @@ class AdminTableController extends Controller
                     'fee' => e($registration->fee?->name ?? '-'),
                     'status' => view('admin.partials.status-badge', ['status' => $registration->status->label(), 'tone' => 'primary'])->render(),
                     'created_at' => $registration->created_at?->format('d M Y H:i'),
+                    'actions' => '<button class="btn btn-sm btn-outline-primary" data-document-url="'.e(route('admin.registrations.receipt', $registration)).'">Unduh Bukti Daftar</button>',
                 ],
             ),
             'payments' => $this->dataTables->response(
@@ -287,6 +289,7 @@ class AdminTableController extends Controller
                     ['data' => 'fee', 'title' => 'Fee'],
                     ['data' => 'status', 'title' => 'Status', 'className' => 'no-sort'],
                     ['data' => 'created_at', 'title' => 'Created'],
+                    ['data' => 'actions', 'title' => 'Actions', 'className' => 'no-sort'],
                 ],
             ],
             'payments' => [
@@ -505,9 +508,9 @@ class AdminTableController extends Controller
     private function crudActions(Model $record, string $resource): HtmlString
     {
         return new HtmlString(
-            '<div class="d-flex gap-2">'.
-            '<a class="btn btn-sm btn-outline-primary" href="'.e(route('admin.crud.edit', [$resource, $record->getRouteKey()])).'" title="Edit"><i class="ti ti-edit"></i></a>'.
-            '<button class="btn btn-sm btn-outline-danger" data-table-action data-method="delete" data-title="Delete record" data-text="This record will be deleted permanently." data-confirm="Delete" data-action-url="'.e(route('admin.crud.destroy', [$resource, $record->getRouteKey()])).'" title="Delete"><i class="ti ti-trash"></i></button>'.
+            '<div class="d-flex flex-wrap gap-2">'.
+            '<a class="btn btn-sm btn-outline-primary" href="'.e(route('admin.crud.edit', [$resource, $record->getRouteKey()])).'" title="Edit"><i class="ti ti-edit me-1"></i>Edit</a>'.
+            '<button class="btn btn-sm btn-outline-danger" data-table-action data-method="delete" data-title="Delete record" data-text="This record will be deleted permanently." data-confirm="Delete" data-action-url="'.e(route('admin.crud.destroy', [$resource, $record->getRouteKey()])).'" title="Delete"><i class="ti ti-trash me-1"></i>Delete</button>'.
             '</div>',
         );
     }
@@ -515,9 +518,12 @@ class AdminTableController extends Controller
     private function paymentActions(Payment $payment): HtmlString
     {
         return new HtmlString(
-            '<div class="d-flex gap-2">'.
-            '<button class="btn btn-sm btn-success" data-table-action data-title="Verify payment" data-confirm="Verify" data-action-url="'.e(route('admin.payments.verify', $payment)).'"><i class="ti ti-check"></i></button>'.
-            '<button class="btn btn-sm btn-outline-danger" data-table-action data-prompt="reason" data-title="Reject payment" data-confirm="Reject" data-action-url="'.e(route('admin.payments.reject', $payment)).'"><i class="ti ti-x"></i></button>'.
+            '<div class="d-flex flex-wrap gap-2">'.
+            '<a class="btn btn-sm btn-primary" href="'.e(route('admin.payments.review', $payment)).'">Review Payment</a>'.
+            '<button class="btn btn-sm btn-success" data-table-action data-title="Verify payment" data-confirm="Verify" data-action-url="'.e(route('admin.payments.verify', $payment)).'"><i class="ti ti-check me-1"></i>Verify</button>'.
+            '<button class="btn btn-sm btn-outline-danger" data-table-action data-prompt="reason" data-title="Reject payment" data-confirm="Reject" data-action-url="'.e(route('admin.payments.reject', $payment)).'"><i class="ti ti-x me-1"></i>Reject</button>'.
+            ($payment->proof_file ? '<a class="btn btn-sm btn-outline-secondary" href="'.e(route('admin.payments.proof', $payment)).'">Unduh Bukti Transfer</a>' : '').
+            ($payment->status === PaymentStatus::Verified ? '<button class="btn btn-sm btn-outline-primary" data-document-url="'.e(route('admin.payments.receipt', $payment)).'">Unduh Bukti Bayar</button>' : '').
             '</div>',
         );
     }
@@ -525,10 +531,11 @@ class AdminTableController extends Controller
     private function submissionActions(Submission $submission): HtmlString
     {
         return new HtmlString(
-            '<div class="d-flex gap-2">'.
-            '<button class="btn btn-sm btn-success" data-table-action data-status="abstract_accepted" data-title="Accept abstract" data-confirm="Accept" data-action-url="'.e(route('admin.submissions.decision', $submission)).'"><i class="ti ti-file-check"></i></button>'.
-            '<button class="btn btn-sm btn-outline-warning" data-table-action data-status="revision_required" data-title="Request revision" data-confirm="Request" data-action-url="'.e(route('admin.submissions.decision', $submission)).'"><i class="ti ti-edit"></i></button>'.
-            '<button class="btn btn-sm btn-outline-danger" data-table-action data-status="abstract_rejected" data-title="Reject abstract" data-confirm="Reject" data-action-url="'.e(route('admin.submissions.decision', $submission)).'"><i class="ti ti-file-x"></i></button>'.
+            '<div class="d-flex flex-wrap gap-2">'.
+            '<a class="btn btn-sm btn-primary" href="'.e(route('admin.submissions.review', $submission)).'">Review Abstract</a>'.
+            '<button class="btn btn-sm btn-success" data-table-action data-status="abstract_accepted" data-title="Accept abstract" data-confirm="Accept" data-action-url="'.e(route('admin.submissions.decision', $submission)).'"><i class="ti ti-file-check me-1"></i>Accept</button>'.
+            '<button class="btn btn-sm btn-outline-warning" data-table-action data-status="revision_required" data-title="Request revision" data-confirm="Request" data-action-url="'.e(route('admin.submissions.decision', $submission)).'"><i class="ti ti-edit me-1"></i>Request Revision</button>'.
+            '<button class="btn btn-sm btn-outline-danger" data-table-action data-status="abstract_rejected" data-title="Reject abstract" data-confirm="Reject" data-action-url="'.e(route('admin.submissions.decision', $submission)).'"><i class="ti ti-file-x me-1"></i>Reject</button>'.
             '</div>',
         );
     }

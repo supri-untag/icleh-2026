@@ -14,13 +14,13 @@ class ConferenceTemplateMail extends Mailable
     use Queueable, SerializesModels;
 
     /**
-     * @param  array<int, array{path: string, name?: string}>  $attachments
+     * @param  array<int, array{path: string, name?: string}>  $mailAttachments
      */
     public function __construct(
-        private string $subject,
-        private string $html,
-        private string $text,
-        private array $attachments = [],
+        private string $mailSubject,
+        private string $htmlContent,
+        private string $textContent,
+        private array $mailAttachments = [],
     ) {}
 
     /**
@@ -29,7 +29,7 @@ class ConferenceTemplateMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: $this->subject,
+            subject: $this->mailSubject,
         );
     }
 
@@ -40,8 +40,8 @@ class ConferenceTemplateMail extends Mailable
     {
         return new Content(
             text: 'mail.plain',
-            htmlString: $this->html,
-            with: ['text' => $this->text],
+            htmlString: $this->htmlContent,
+            with: ['text' => $this->textContent],
         );
     }
 
@@ -52,7 +52,7 @@ class ConferenceTemplateMail extends Mailable
      */
     public function attachments(): array
     {
-        return collect($this->attachments)
+        return collect($this->mailAttachments)
             ->map(function (array $attachment): Attachment {
                 $mailAttachment = Attachment::fromStorageDisk('local', $attachment['path']);
 

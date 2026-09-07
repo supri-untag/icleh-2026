@@ -22,7 +22,7 @@ window.Dropzone = Dropzone;
 window.JSZip = JSZip;
 window.Swal = Swal;
 
-pdfMake.vfs = pdfFonts.vfs;
+pdfMake.addVirtualFileSystem(pdfFonts);
 select2(window, $);
 
 const sidebar = document.getElementById('sidebar');
@@ -49,6 +49,11 @@ const reloadAdminTables = () => {
 
 document.querySelectorAll('[data-admin-table]').forEach((table) => {
     const columns = JSON.parse(table.dataset.columns || '[]');
+    columns.forEach((column) => {
+        if (column.data === 'actions') {
+            column.responsivePriority = 1;
+        }
+    });
 
     table._dtInstance = new DataTable(table, {
         ajax: table.dataset.ajaxUrl,
@@ -312,4 +317,118 @@ document.querySelectorAll('[data-coauthors]').forEach((container) => {
     list.addEventListener('change', syncRows);
     list.addEventListener('input', syncRows);
     syncRows();
+});
+
+const attendanceQr = document.querySelector('[data-attendance-qr]');
+if (attendanceQr) {
+    import('qrcode').then(({ default: QRCode }) => {
+        return QRCode.toCanvas(attendanceQr, attendanceQr.dataset.attendanceQr, { width: 420, margin: 4, errorCorrectionLevel: 'M' });
+    }).catch(() => {
+        document.querySelector('[data-qr-status]').textContent = 'Could not display the QR. Please refresh and generate it again.';
+    });
+}
+
+const attendanceScanner = document.querySelector('[data-attendance-scanner]');
+if (attendanceScanner?.querySelector('[data-camera-start]')) {
+    const startButton = attendanceScanner.querySelector('[data-camera-start]');
+    const stopButton = attendanceScanner.querySelector('[data-camera-stop]');
+    const video = attendanceScanner.querySelector('[data-camera-video]');
+    const preview = attendanceScanner.querySelector('[data-camera-preview]');
+    const status = attendanceScanner.querySelector('[data-camera-status]');
+    let scanner = null;
+    let scanning = false;
+    let submitting = false;
+
+    const stopCamera = () => {
+        scanning = false;
+        scanner?.destroy();
+        scanner = null;
+        preview.hidden = true;
+        stopButton.hidden = true;
+        startButton.disabled = submitting;
+    };
+
+    startButton.addEventListener('click', async () => {
+        if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+            status.textContent = 'Camera access requires HTTPS or localhost. Open this site using a secure connection.';
+            return;
+        }
+        startButton.disabled = true;
+        stopButton.hidden = false;
+        scanning = true;
+        status.textContent = 'Allow camera access, then point the camera at the committee QR.';
+        try {
+            const { default: QrScanner } = await import('qr-scanner');
+            if (!scanning) {
+                return;
+            }
+            preview.hidden = false;
+            scanner = new QrScanner(video, async (result) => {
+                if (submitting || !scanning) {
+                    return;
+                }
+                submitting = true;
+                stopCamera();
+                status.textContent = 'QR detected. Recording attendance…';
+                try {
+                    const { data } = await axios.post(attendanceScanner.dataset.scanUrl, { code: result.data });
+                    status.textContent = data.message;
+                    window.setTimeout(() => { window.location.assign(data.redirect_url); }, 1000);
+                } catch (error) {
+                    const errors = error.response?.data?.errors;
+                    status.textContent = errors ? Object.values(errors).flat().join(' ') : 'Could not record attendance. Check your connection and try again.';
+                    submitting = false;
+                    startButton.disabled = false;
+                }
+            }, { preferredCamera: 'environment', highlightScanRegion: true, highlightCodeOutline: true, returnDetailedScanResult: true });
+            await scanner.start();
+        } catch (error) {
+            stopCamera();
+            status.textContent = 'Could not open the camera. Allow camera permission in your browser, close other camera apps, and try again.';
+        }
+    });
+    stopButton.addEventListener('click', () => {
+        stopCamera();
+        status.textContent = 'Camera stopped. Select Open Camera to scan again.';
+    });
+    window.addEventListener('pagehide', stopCamera);
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && scanning) {
+            stopCamera();
+            status.textContent = 'Camera paused. Select Open Camera to continue.';
+        }
+    });
+}
+
+document.querySelectorAll('[data-admin-review-form]').forEach((form) => {
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const button = form.querySelector('button[type="submit"], button:not([type])');
+        button.disabled = true;
+        try {
+            const { data } = await axios.post(form.action, new FormData(form));
+            await Swal.fire({ icon: 'success', title: data.message });
+            window.location.reload();
+        } catch (error) {
+            const errors = error.response?.data?.errors;
+            await Swal.fire({ icon: 'error', title: 'Could not save', text: errors ? Object.values(errors).flat().join(' ') : error.response?.data?.message || 'Please try again.' });
+            button.disabled = false;
+        }
+    });
+});
+
+document.addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-document-url]');
+    if (!button) {
+        return;
+    }
+    button.disabled = true;
+    try {
+        const { data } = await axios.get(button.dataset.documentUrl);
+        await pdfMake.createPdf(data.definition).download(data.filename);
+    } catch (error) {
+        await Swal.fire({ icon: 'error', title: 'Download failed', text: error.response?.data?.message || 'Could not generate the PDF. Please try again.' });
+    } finally {
+        button.disabled = false;
+    }
 });

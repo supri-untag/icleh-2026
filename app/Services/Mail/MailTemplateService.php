@@ -26,10 +26,16 @@ class MailTemplateService
             ->orderByRaw('conference_id is null')
             ->first();
 
-        $html = $template?->body_html
-            ?? '<p>Dear {{ participant_name }},</p><p>{{ conference_name }} has an update for you.</p>';
+        $legacyHtml = '<p>Dear {{ participant_name }},</p><p>{{ conference_name }} update: '.($template?->name ?? '').'.</p><p>{{ submission_title }}</p><p>{{ rejection_reason }}</p>';
+        if (! $template || $template->body_html === $legacyHtml) {
+            $html = view('mail.activity', compact('subject', 'data'))->render();
+            $text = html_entity_decode(strip_tags(str_replace(['</p>', '</h1>', '</h2>', '<br>'], "\n", $html)), ENT_QUOTES, 'UTF-8');
 
-        $text = $template?->body_text ?? strip_tags(str_replace(['</p>', '<br>', '<br/>', '<br />'], "\n", $html));
+            return ['subject' => $subject, 'html' => $html, 'text' => trim($text)];
+        }
+
+        $html = $template->body_html;
+        $text = $template->body_text ?? strip_tags(str_replace(['</p>', '<br>', '<br/>', '<br />'], "\n", $html));
 
         return [
             'subject' => $this->replacePlaceholders($template?->subject ?? $subject, $data, false),

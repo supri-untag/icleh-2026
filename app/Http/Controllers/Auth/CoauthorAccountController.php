@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\SubmissionAuthor;
 use App\Models\User;
 use App\Notifications\CoauthorAccountInvitation;
+use App\Services\Mail\WorkflowMailService;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\RedirectResponse;
@@ -38,6 +39,7 @@ class CoauthorAccountController extends Controller
                 event(new Verified($user));
             }
 
+            app(WorkflowMailService::class)->user($user, 'password_changed', 'Your account password was changed');
             event(new PasswordReset($user));
         });
 

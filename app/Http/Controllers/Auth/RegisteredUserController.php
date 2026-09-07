@@ -8,6 +8,7 @@ use App\Http\Requests\Auth\RegisteredUserRequest;
 use App\Models\Country;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\Mail\WorkflowMailService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -52,6 +53,7 @@ class RegisteredUserController extends Controller
             $user->roles()->attach($participantRole);
         }
 
+        app(WorkflowMailService::class)->user($user, 'account_registered', 'Account registration successful');
         event(new Registered($user));
 
         Auth::login($user);

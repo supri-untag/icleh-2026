@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Participant;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Participant\ProfileRequest;
 use App\Models\Country;
+use App\Services\Mail\WorkflowMailService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -40,6 +41,8 @@ class ProfileController extends Controller
         ]);
 
         $user->profile()->updateOrCreate(['user_id' => $user->id], $data);
+
+        app(WorkflowMailService::class)->user($user, 'profile_updated', 'Profile updated');
 
         return back()->with('status', 'Profile updated.');
     }

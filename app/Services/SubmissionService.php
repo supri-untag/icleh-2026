@@ -17,6 +17,7 @@ use App\Models\SubmissionFile;
 use App\Models\User;
 use App\Notifications\CoauthorAccountInvitation;
 use App\Services\Mail\MailService;
+use App\Services\Mail\WorkflowMailService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -97,6 +98,11 @@ class SubmissionService
             }
 
             $this->syncAuthors($submission, $user, $data->authors);
+            app(WorkflowMailService::class)->committee($conference, ['super_admin', 'admin', 'scientific_committee'], 'submission_received', 'New abstract ready for review', [
+                'submission_title' => $submission->title,
+                'submission_code' => $submission->submission_code,
+                'action_url' => route('admin.submissions.review', $submission),
+            ]);
             $this->recordStatusHistory($submission, null, SubmissionStatus::AbstractSubmitted, $user, 'Abstract submitted by presenter.');
 
             AuditLog::query()->create([
@@ -144,34 +150,16 @@ class SubmissionService
 
             if ($status === SubmissionStatus::AbstractAccepted) {
                 $this->issueLoa($submission, $actor);
-
-                $this->mailService->queue(SendMailData::fromArray([
-                    'to' => $submission->user->email,
-                    'template' => 'abstract_accepted',
-                    'subject' => 'Abstract Accepted - ICLEH 2026',
-                    'conference_id' => $submission->conference_id,
-                    'user_id' => $submission->user_id,
-                    'data' => [
-                        'participant_name' => $submission->user->name,
-                        'conference_name' => $submission->conference->name,
-                        'submission_title' => $submission->title,
-                    ],
-                ]));
             }
 
-            if ($status === SubmissionStatus::AbstractRejected) {
-                $this->mailService->queue(SendMailData::fromArray([
-                    'to' => $submission->user->email,
-                    'template' => 'abstract_rejected',
-                    'subject' => 'Abstract Decision - ICLEH 2026',
-                    'conference_id' => $submission->conference_id,
-                    'user_id' => $submission->user_id,
-                    'data' => [
-                        'participant_name' => $submission->user->name,
-                        'conference_name' => $submission->conference->name,
-                        'submission_title' => $submission->title,
-                    ],
-                ]));
+            if ($before !== $status) {
+                $template = match ($status) {
+                    SubmissionStatus::AbstractAccepted => 'abstract_accepted',
+                    SubmissionStatus::AbstractRejected => 'abstract_rejected',
+                    SubmissionStatus::RevisionRequired => 'revision_requested',
+                    default => 'submission_status_changed',
+                };
+                app(WorkflowMailService::class)->authors($submission, $template, $status->label(), ['notes' => $notes]);
             }
 
             AuditLog::query()->create([
@@ -248,6 +236,14 @@ class SubmissionService
                     $authorUser->assignRole(UserRole::Participant);
                     $authorUser->notify((new CoauthorAccountInvitation)->afterCommit());
                 }
+            }
+
+            if ($index > 0 && $authorUser) {
+                app(WorkflowMailService::class)->user($authorUser, 'coauthor_added', 'You have been added as a co-author', [
+                    'submission_title' => $submission->title,
+                    'submission_code' => $submission->submission_code,
+                    'status' => ! empty($author['participant']) ? 'Participant registration linked' : 'Co-author',
+                ], $submission->conference);
             }
 
             $submission->authors()->create([

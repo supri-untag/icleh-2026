@@ -11,6 +11,7 @@ use App\Models\Payment;
 use App\Models\Registration;
 use App\Models\User;
 use App\Services\Mail\MailService;
+use App\Services\Mail\WorkflowMailService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -73,6 +74,12 @@ class PaymentService
                     'payment_amount' => $payment->formattedAmount(),
                 ],
             ]));
+
+            app(WorkflowMailService::class)->committee($registration->conference, ['super_admin', 'admin', 'finance'], 'payment_ready_for_verification', 'Payment proof ready for verification', [
+                'registration_code' => $registration->registration_code,
+                'payment_amount' => $payment->formattedAmount(),
+                'action_url' => route('admin.payments.review', $payment),
+            ]);
 
             return $payment->refresh()->load(['registration.user', 'registration.fee']);
         });

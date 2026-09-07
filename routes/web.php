@@ -2,13 +2,17 @@
 
 use App\Http\Controllers\Admin\AdminCrudController;
 use App\Http\Controllers\Admin\AdminTableController;
+use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\PaymentVerificationController;
+use App\Http\Controllers\Admin\ReceiptController;
+use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\SubmissionDecisionController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\CoauthorAccountController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Participant\AttendanceController;
 use App\Http\Controllers\Participant\DashboardController as ParticipantDashboardController;
 use App\Http\Controllers\Participant\DocumentController;
 use App\Http\Controllers\Participant\PaymentController;
@@ -86,6 +90,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/loa/{loaDocument}', [DocumentController::class, 'loa'])->name('participant.loa.show');
     Route::get('/participant/program', [DocumentController::class, 'index'])->name('participant.program');
     Route::get('/attendance', [DocumentController::class, 'index'])->name('participant.attendance');
+    Route::post('/attendance', [AttendanceController::class, 'store'])->middleware('throttle:30,1')->name('participant.attendance.store');
     Route::get('/certificates', [DocumentController::class, 'index'])->name('participant.certificates');
     Route::get('/notifications', [DocumentController::class, 'index'])->name('participant.notifications');
 });
@@ -95,6 +100,8 @@ Route::middleware(['auth', 'verified', 'role:super_admin,admin,scientific_commit
     ->name('admin.')
     ->group(function (): void {
         Route::get('/', AdminDashboardController::class)->name('dashboard');
+        Route::get('/attendance', [AdminAttendanceController::class, 'index'])->name('attendance.index');
+        Route::post('/attendance', [AdminAttendanceController::class, 'index'])->name('attendance.generate');
 
         Route::get('/participants/registrations', [AdminTableController::class, 'view'])
             ->defaults('table', 'registrations')
@@ -151,6 +158,13 @@ Route::middleware(['auth', 'verified', 'role:super_admin,admin,scientific_commit
         Route::get('/crud/{resource}/{record}/edit', [AdminCrudController::class, 'edit'])->name('crud.edit');
         Route::put('/crud/{resource}/{record}', [AdminCrudController::class, 'update'])->name('crud.update');
         Route::delete('/crud/{resource}/{record}', [AdminCrudController::class, 'destroy'])->name('crud.destroy');
+        Route::get('/registrations/{registration}/receipt', [ReceiptController::class, 'registration'])->name('registrations.receipt');
+        Route::get('/payments/{payment}/receipt', [ReceiptController::class, 'payment'])->name('payments.receipt');
+        Route::get('/payments/{payment}/review', [PaymentVerificationController::class, 'show'])->middleware('role:super_admin,admin,finance')->name('payments.review');
+        Route::get('/payments/{payment}/proof', [PaymentVerificationController::class, 'proof'])->middleware('role:super_admin,admin,finance')->name('payments.proof');
+        Route::get('/submissions/{submission}/review', [SubmissionDecisionController::class, 'show'])->middleware('role:super_admin,admin,scientific_committee')->name('submissions.review');
+        Route::get('/submissions/{submission}/file', [SubmissionDecisionController::class, 'file'])->middleware('role:super_admin,admin,scientific_committee')->name('submissions.file');
+        Route::post('/submissions/{submission}/review', [ReviewController::class, 'submit'])->middleware('role:super_admin,admin,scientific_committee')->name('submissions.review.store');
         Route::post('/payments/{payment}/verify', [PaymentVerificationController::class, 'verify'])->name('payments.verify');
         Route::post('/payments/{payment}/reject', [PaymentVerificationController::class, 'reject'])->name('payments.reject');
         Route::post('/submissions/{submission}/decision', [SubmissionDecisionController::class, 'update'])->name('submissions.decision');

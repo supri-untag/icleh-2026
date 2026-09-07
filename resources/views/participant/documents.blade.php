@@ -107,12 +107,28 @@
                         <div class="card-header bg-white">
                             <h2 class="h5 mb-0">Attendance QR</h2>
                         </div>
-                        <div class="card-body text-center">
-                            <p class="fw-semibold mb-3 text-break-balanced">{{ $registration?->registration_code ?? 'No registration' }}</p>
-                            <div class="participant-qr-box d-flex align-items-center justify-content-center rounded border bg-white text-primary fw-bold fs-1">
-                                QR
-                            </div>
-                            <p class="small text-secondary mt-3 mb-0">Use this registration code during committee check-in.</p>
+                        <div class="card-body text-center" data-attendance-scanner data-scan-url="{{ route('participant.attendance.store') }}">
+                            @if ($registration)
+                                <p>Open your camera and scan the QR displayed by the committee.</p>
+                                <div class="position-relative overflow-hidden rounded bg-dark mb-3" data-camera-preview hidden>
+                                    <video class="w-100 d-block" muted playsinline data-camera-video></video>
+                                </div>
+                                <div class="d-flex flex-wrap justify-content-center gap-2">
+                                    <button type="button" class="btn btn-primary" data-camera-start><i class="ti ti-camera me-1"></i>Open Camera</button>
+                                    <button type="button" class="btn btn-outline-secondary" data-camera-stop hidden>Stop Camera</button>
+                                </div>
+                                <p class="small text-secondary mt-3 mb-0" role="status" aria-live="polite" data-camera-status>Allow camera access when your browser asks.</p>
+                                <form method="POST" action="{{ route('participant.attendance.store') }}" class="border-top mt-4 pt-3 text-start">
+                                    @csrf
+                                    <label for="attendance-code" class="form-label fw-semibold">Or enter attendance code</label>
+                                    <input id="attendance-code" name="code" value="{{ old('code') }}" class="form-control text-uppercase font-monospace @error('code') is-invalid @enderror" placeholder="AB12-CD34" maxlength="9" autocomplete="off" spellcheck="false" required>
+                                    @error('code')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    <button class="btn btn-primary w-100 mt-3">Check In with Code</button>
+                                </form>
+                            @else
+                                <p>Complete registration before checking in.</p>
+                                <a class="btn btn-primary" href="{{ route('participant.registration') }}">Open Registration</a>
+                            @endif
                         </div>
                     </section>
                 </div>

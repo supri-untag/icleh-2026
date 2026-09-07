@@ -30,6 +30,8 @@
         "jquery": "^4.0.0",
         "jszip": "^3.10.1",
         "pdfmake": "^0.3.11",
+        "qr-scanner": "^1.4.2",
+        "qrcode": "^1.5.4",
         "sass": "^1.103.1",
         "select2": "^4.1.0",
         "sweetalert2": "^11.26.25"

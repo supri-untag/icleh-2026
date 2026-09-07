@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\DTOs\Mail\SendMailData;
+use App\Enums\MailStatus;
 use App\Models\MailLog;
 use App\Services\Mail\MailLogService;
 use App\Services\Mail\MailService;
@@ -35,6 +36,9 @@ class SendConferenceMailJob implements ShouldQueue
     {
         $mailLog = MailLog::query()->findOrFail($this->mailLogId);
 
+        if ($mailLog->status === MailStatus::Sent) {
+            return;
+        }
         $mailService->send($this->data, $mailLog);
     }
 
