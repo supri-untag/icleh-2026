@@ -43,7 +43,7 @@
 
                                     <div class="grid gap-5 md:grid-cols-2 {{ $speakerSection['large'] ? '' : 'lg:grid-cols-3' }}">
                                         @foreach ($speakerSection['speakers'] as $speaker)
-                                            <article class="rounded-2xl bg-white p-6 shadow-xl">
+                                            <article class="speaker-card rounded-2xl bg-white p-6 shadow-xl">
                                                 @php
                                                     $speakerPhotoUrl = $speaker->photoUrl();
                                                 @endphp

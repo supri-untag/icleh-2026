@@ -124,7 +124,7 @@
                             <h3 class="mb-5 text-2xl font-bold text-darken">{{ $speakerSection['title'] }}</h3>
                             <div class="grid gap-5 {{ $speakerSection['columns'] }}">
                                 @foreach ($speakerSection['speakers'] as $speaker)
-                                    <article class="rounded-2xl bg-white p-6 shadow-xl">
+                                    <article class="speaker-card rounded-2xl bg-white p-6 shadow-xl">
                                         @php
                                             $speakerPhotoUrl = $speaker->photoUrl();
                                         @endphp
@@ -213,6 +213,53 @@
                 @empty
                     <p class="text-gray-500">Important dates will be published by the committee.</p>
                 @endforelse
+            </div>
+        </section>
+
+        <section id="participant-journey" class="journey-section mt-32" aria-labelledby="journey-title">
+            <div class="mx-auto max-w-3xl text-center">
+                <span class="landing-kicker">Your ICLEH journey</span>
+                <h2 id="journey-title" class="mt-5 text-3xl font-semibold text-darken">From your first idea to <span class="text-yellow-500">the international stage.</span></h2>
+                <p class="mt-4 leading-7 text-gray-500">Follow your path to ICLEH 2026, from exploring research themes to sharing your work and connecting with fellow researchers.</p>
+            </div>
+
+            <div class="journey-map">
+                <svg class="journey-path" viewBox="0 0 1000 520" fill="none" preserveAspectRatio="none" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="journey-gradient" x1="0" y1="0" x2="1000" y2="520" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#b71924" />
+                            <stop offset="0.5" stop-color="#e2b13c" />
+                            <stop offset="1" stop-color="#b71924" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M 167 26 H 875 C 985 26 985 316 875 316 H 167" stroke="url(#journey-gradient)" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 10" />
+                </svg>
+                <ol class="journey-steps">
+                    @foreach ([
+                        ['title' => 'Explore the Tracks', 'description' => 'Find your research focus across law, economy, health, and artificial intelligence.', 'route' => 'topics', 'link' => 'Discover research scopes', 'icon' => 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20 M6.5 3H20v19H6.5A2.5 2.5 0 0 1 4 19.5v-14A2.5 2.5 0 0 1 6.5 3Z M8 7h8 M8 11h6'],
+                        ['title' => 'Create Your Account', 'description' => 'Set up your participant profile and choose your conference registration category.', 'route' => 'register', 'link' => 'Start your registration', 'icon' => 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M16 3a4 4 0 0 1 0 8 M22 21v-2a4 4 0 0 0-3-3.87 M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0'],
+                        ['title' => 'Submit Your Abstract', 'description' => 'Prepare your abstract using the author guidelines and submit it through the participant portal.', 'route' => 'guide-for-authors', 'link' => 'Read the author guide', 'icon' => 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z M14 2v6h6 M8 13h8 M8 17h5'],
+                        ['title' => 'Track Your Submission', 'description' => 'Check your submission status and follow updates from the committee in your portal.', 'route' => 'participant.submissions', 'link' => 'Open your submissions', 'icon' => 'M9 11l3 3L22 4 M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11'],
+                        ['title' => 'Join the Conference', 'description' => 'Plan your hybrid conference experience and take part in presentations and academic discussions.', 'route' => 'program', 'link' => 'Explore the program', 'icon' => 'M8 2v4 M16 2v4 M3 10h18 M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2 M8 14h2 M14 14h2 M8 18h2'],
+                        ['title' => 'Connect & Look Ahead', 'description' => 'Build academic connections and explore the conference publication information for your next steps.', 'route' => 'publication', 'link' => 'View publication information', 'icon' => 'M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M3 12h18 M12 3a17 17 0 0 1 0 18 17 17 0 0 1 0-18'],
+                    ] as $step)
+                        <li class="journey-step">
+                            <span class="journey-number" aria-hidden="true">{{ $loop->iteration }}</span>
+                            <div class="journey-step-content">
+                                <span class="journey-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="{{ $step['icon'] }}" /></svg>
+                                </span>
+                                <h3>{{ $step['title'] }}</h3>
+                                <p>{{ $step['description'] }}</p>
+                                <a href="{{ route($step['route']) }}">{{ $step['link'] }} <span aria-hidden="true">↗</span></a>
+                            </div>
+                        </li>
+                    @endforeach
+                </ol>
+            </div>
+            <div class="mt-8 flex flex-wrap justify-center gap-3">
+                <a href="{{ route('register') }}" class="landing-button landing-button-primary">Begin Your Journey</a>
+                <a href="{{ route('participant.submissions.create') }}" class="landing-button border border-yellow-500 text-yellow-500">Submit Your Abstract</a>
             </div>
         </section>
 
