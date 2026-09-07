@@ -36,13 +36,13 @@
                 <div class="col-12 col-md-6">
                     <label class="form-label fw-semibold" for="profile-country-id">Country</label>
                     <select
-                        class="form-select @error('country_id') is-invalid @enderror"
+                        class="form-select js-select2 @error('country_id') is-invalid @enderror"
                         id="profile-country-id"
                         name="country_id"
                     >
                         <option value="">Select country</option>
                         @foreach ($countries as $country)
-                            <option value="{{ $country->id }}" @selected((int) old('country_id', $user->profile?->country_id ?? $user->country_id) === $country->id)>
+                            <option value="{{ $country->id }}" @selected((int) old('country_id', $user->profile?->country_id ?? $user->country_id ?? $defaultCountryId) === $country->id)>
                                 {{ $country->name }}
                             </option>
                         @endforeach

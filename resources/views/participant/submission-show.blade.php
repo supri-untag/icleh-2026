@@ -83,12 +83,15 @@
 
                         <div class="col-12 col-md-6">
                             <label class="form-label fw-semibold" for="submission-country">Country</label>
-                            <input
-                                class="form-control @error('country') is-invalid @enderror"
-                                id="submission-country"
-                                name="country"
-                                value="{{ old('country', auth()->user()->country) }}"
-                            >
+                            <select class="form-select js-select2 @error('country') is-invalid @enderror" id="submission-country" name="country">
+                                <option value="">Select country</option>
+                                @if (filled(old('country', auth()->user()->country)) && ! $countries->contains('name', old('country', auth()->user()->country)))
+                                    <option value="{{ old('country', auth()->user()->country) }}" selected>{{ old('country', auth()->user()->country) }}</option>
+                                @endif
+                                @foreach ($countries as $country)
+                                    <option value="{{ $country->name }}" @selected(old('country', auth()->user()->country ?? 'Indonesia') === $country->name)>{{ $country->name }}</option>
+                                @endforeach
+                            </select>
                             @error('country')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -133,28 +136,19 @@
                             @enderror
                         </div>
 
-                        <div class="col-12">
-                            <fieldset class="border rounded p-3">
-                                <legend class="float-none w-auto px-2 h6 mb-0">Co-author</legend>
-                                <div class="row g-3">
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label" for="submission-author-name">Name</label>
-                                        <input class="form-control" id="submission-author-name" name="authors[0][name]" value="{{ old('authors.0.name') }}" placeholder="Co-author name">
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label" for="submission-author-email">Email</label>
-                                        <input class="form-control" id="submission-author-email" name="authors[0][email]" value="{{ old('authors.0.email') }}" placeholder="Co-author email">
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label" for="submission-author-affiliation">Affiliation</label>
-                                        <input class="form-control" id="submission-author-affiliation" name="authors[0][affiliation]" value="{{ old('authors.0.affiliation') }}" placeholder="Affiliation">
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label" for="submission-author-country">Country</label>
-                                        <input class="form-control" id="submission-author-country" name="authors[0][country]" value="{{ old('authors.0.country') }}" placeholder="Country">
-                                    </div>
-                                </div>
-                            </fieldset>
+                        <div class="col-12" data-coauthors>
+                            <h2 class="h6">Co-authors</h2>
+                            <p class="small text-secondary">You are included as the main author. Add up to 10 co-authors. Each co-author needs an email for their account. Participants without an existing conference registration receive the same fee category as yours: {{ $registration->fee->name }} ({{ $registration->fee->formattedAmount() }}).</p>
+                            @error('authors')<div class="alert alert-danger">{{ $message }}</div>@enderror
+                            <div class="d-grid gap-3" data-coauthor-list>
+                                @foreach (old('authors', [[]]) as $index => $author)
+                                    @include('participant.partials.coauthor-row', ['index' => $index, 'author' => $author])
+                                @endforeach
+                            </div>
+                            <template data-coauthor-template>
+                                @include('participant.partials.coauthor-row', ['index' => '__INDEX__', 'author' => []])
+                            </template>
+                            <button type="button" class="btn btn-outline-primary mt-3" data-add-coauthor>Add Co-author</button>
                         </div>
 
                         <div class="col-12">
@@ -229,7 +223,8 @@
                         <div class="col-12 col-md-6">
                             <div class="border rounded p-3 h-100">
                                 <p class="fw-bold mb-1 text-break-balanced">{{ $author->name }}</p>
-                                <p class="small text-secondary mb-0 text-break-balanced">{{ $author->affiliation }} {{ $author->country ? '- '.$author->country : '' }}</p>
+                                <p class="small text-secondary mb-0 text-break-balanced">{{ $author->affiliation }} {{ $author->country ? '- '.$author->country : '' }}
+                                    @if ($author->participant)<span class="badge text-bg-primary ms-2">Participant</span>@endif</p>
                             </div>
                         </div>
                     @empty

@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Services\Mail\MailService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class RegistrationService
 {
@@ -29,12 +30,19 @@ class RegistrationService
                 ->with('payment')
                 ->where('conference_id', $data->conferenceId)
                 ->whereBelongsTo($user)
+                ->lockForUpdate()
                 ->first() ?? new Registration([
                     'conference_id' => $data->conferenceId,
                     'user_id' => $user->id,
                     'registration_code' => $this->newCode('ICLEH-REG', Registration::class, 'registration_code'),
                 ]);
             $registrationAlreadyExists = $registration->exists;
+
+            if ($registrationAlreadyExists && $registration->payment()->lockForUpdate()->first()?->isLockedForParticipant()) {
+                throw ValidationException::withMessages([
+                    'registration_fee_id' => 'Registration is locked because payment proof has already been submitted.',
+                ]);
+            }
 
             $registration->fill([
                 'registration_fee_id' => $data->registrationFeeId,

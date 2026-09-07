@@ -28,7 +28,7 @@
         </label>
         <label class="grid gap-2 text-sm font-semibold">
             Country
-            <select name="country_id" required class="rounded-full border border-black/10 px-4 py-3">
+            <select name="country_id" required class="js-select2 rounded-full border border-black/10 px-4 py-3">
                 <option value="">Select country</option>
                 @foreach ($countries as $country)
                     <option value="{{ $country->id }}" @selected((int) old('country_id', $defaultCountryId) === $country->id)>

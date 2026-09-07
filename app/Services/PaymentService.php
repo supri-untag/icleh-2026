@@ -29,7 +29,15 @@ class PaymentService
         }
 
         return DB::transaction(function () use ($registration, $data, $user): Payment {
-            $payment = $registration->payment()->firstOrFail();
+            $registration = Registration::query()->lockForUpdate()->findOrFail($registration->id);
+            $payment = $registration->payment()->lockForUpdate()->firstOrFail();
+
+            if ($payment->isLockedForParticipant()) {
+                throw ValidationException::withMessages([
+                    'proof_file' => 'Payment is locked because proof has already been submitted.',
+                ]);
+            }
+
             $path = $data->proofFile->store('payments/'.$registration->uuid);
 
             $payment->update([

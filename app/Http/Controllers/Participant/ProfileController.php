@@ -14,6 +14,7 @@ class ProfileController extends Controller
     {
         return view('participant.profile', [
             'countries' => Country::query()->active()->ordered()->get(['id', 'name']),
+            'defaultCountryId' => Country::query()->active()->where('iso2', 'ID')->value('id'),
             'user' => request()->user()->load('profile'),
         ]);
     }

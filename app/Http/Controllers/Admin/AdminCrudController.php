@@ -502,8 +502,14 @@ class AdminCrudController extends Controller
             'users' => [
                 'email_verified' => true,
                 'role_ids' => $this->defaultUserRoleIds(),
+                'country_id' => Country::query()->active()->where('iso2', 'ID')->value('id'),
             ],
-            'topics', 'speakers', 'faqs', 'partners' => [
+            'speakers' => [
+                'country' => 'Indonesia',
+                'active' => true,
+                'display_order' => 0,
+            ],
+            'topics', 'faqs', 'partners' => [
                 'active' => true,
                 'display_order' => 0,
             ],
@@ -617,7 +623,7 @@ class AdminCrudController extends Controller
                     ['name' => 'name', 'label' => 'Name', 'type' => 'text', 'required' => true, 'col' => 'col-md-5'],
                     ['name' => 'title', 'label' => 'Title', 'type' => 'text', 'col' => 'col-md-4'],
                     ['name' => 'affiliation', 'label' => 'Affiliation', 'type' => 'text', 'col' => 'col-md-5'],
-                    ['name' => 'country', 'label' => 'Country', 'type' => 'text', 'col' => 'col-md-3'],
+                    ['name' => 'country', 'label' => 'Country', 'type' => 'select', 'options' => Country::query()->active()->ordered()->pluck('name', 'name')->all(), 'placeholder' => 'Select country', 'col' => 'col-md-3'],
                     ['name' => 'attendance_mode', 'label' => 'Attendance Mode', 'type' => 'select', 'options' => $this->attendanceModeOptions(), 'col' => 'col-md-2'],
                     ['name' => 'display_order', 'label' => 'Order', 'type' => 'number', 'col' => 'col-md-1'],
                     ['name' => 'active', 'label' => 'Active', 'type' => 'checkbox', 'col' => 'col-md-1'],

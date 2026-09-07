@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'submission_id',
+    'user_id',
+    'registration_id',
+    'participant',
     'name',
     'email',
     'affiliation',
@@ -27,6 +30,16 @@ class SubmissionAuthor extends Model
         return $this->belongsTo(Submission::class);
     }
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function registration(): BelongsTo
+    {
+        return $this->belongsTo(Registration::class);
+    }
+
     /**
      * @return array<string, string>
      */
@@ -35,6 +48,7 @@ class SubmissionAuthor extends Model
         return [
             'corresponding_author' => 'boolean',
             'presenter' => 'boolean',
+            'participant' => 'boolean',
         ];
     }
 }

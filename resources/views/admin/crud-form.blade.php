@@ -78,7 +78,7 @@
 
                                 @case('select')
                                     <select
-                                        class="form-select @error($name) is-invalid @enderror"
+                                        class="form-select {{ in_array($name, ['country', 'country_id'], true) ? 'js-select2' : '' }} @error($name) is-invalid @enderror"
                                         id="{{ $inputId }}"
                                         name="{{ $name }}"
                                         @required($field['required'] ?? false)
@@ -86,6 +86,9 @@
                                         @isset($field['placeholder'])
                                             <option value="">{{ $field['placeholder'] }}</option>
                                         @endisset
+                                        @if ($name === 'country' && filled($value) && ! array_key_exists($value, $field['options']))
+                                            <option value="{{ $value }}" selected>{{ $value }}</option>
+                                        @endif
                                         @foreach (($field['options'] ?? []) as $optionValue => $optionLabel)
                                             <option value="{{ $optionValue }}" @selected((string) $value === (string) $optionValue)>
                                                 {{ $optionLabel }}

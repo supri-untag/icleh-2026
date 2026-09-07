@@ -3,15 +3,19 @@
 namespace App\Services;
 
 use App\DTOs\Mail\SendMailData;
+use App\DTOs\RegistrationData;
 use App\DTOs\SubmissionData;
 use App\Enums\RegistrationStatus;
 use App\Enums\SubmissionStatus;
+use App\Enums\UserRole;
 use App\Models\AuditLog;
+use App\Models\Country;
 use App\Models\LoaDocument;
 use App\Models\Registration;
 use App\Models\Submission;
 use App\Models\SubmissionFile;
 use App\Models\User;
+use App\Notifications\CoauthorAccountInvitation;
 use App\Services\Mail\MailService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -22,6 +26,7 @@ class SubmissionService
     public function __construct(
         private ConferenceContext $conferenceContext,
         private MailService $mailService,
+        private RegistrationService $registrationService,
     ) {}
 
     public function create(User $user, SubmissionData $data): Submission
@@ -187,19 +192,68 @@ class SubmissionService
      */
     private function syncAuthors(Submission $submission, User $user, array $authors): void
     {
-        if ($authors === []) {
-            $authors = [[
-                'name' => $user->name,
-                'email' => $user->email,
-                'affiliation' => $user->institution,
-                'country' => $user->country,
-                'corresponding_author' => true,
-                'presenter' => true,
-            ]];
-        }
+        $authors = array_values(array_filter($authors, fn (array $author): bool => strcasecmp((string) ($author['email'] ?? ''), $user->email) !== 0));
+        array_unshift($authors, [
+            'name' => $user->name,
+            'email' => $user->email,
+            'affiliation' => $user->institution,
+            'country' => $user->country,
+            'corresponding_author' => true,
+            'presenter' => true,
+            'participant' => true,
+        ]);
 
         foreach (array_values($authors) as $index => $author) {
+            $authorUser = $index === 0 ? $user : null;
+            $authorRegistration = $index === 0 ? $submission->registration : null;
+
+            if ($index > 0) {
+                $country = Country::query()->active()->where('name', $author['country'] ?? 'Indonesia')->firstOrFail();
+                $authorUser = User::query()->firstOrCreate(
+                    ['email' => mb_strtolower(trim($author['email']))],
+                    [
+                        'name' => $author['name'],
+                        'institution' => $author['affiliation'] ?? null,
+                        'country_id' => $country->id,
+                        'country' => $country->name,
+                        'password' => Str::random(64),
+                    ],
+                );
+                $isNewUser = $authorUser->wasRecentlyCreated;
+                $authorUser = User::query()->lockForUpdate()->findOrFail($authorUser->id);
+                $authorRegistration = ! empty($author['participant'])
+                    ? $authorUser->registrations()->where('conference_id', $submission->conference_id)->first()
+                    : null;
+
+                if (! empty($author['participant']) && ! $authorRegistration) {
+                    $sourceRegistration = $submission->registration;
+                    $fee = $sourceRegistration->fee;
+                    $authorRegistration = $this->registrationService->register($authorUser, new RegistrationData(
+                        conferenceId: $submission->conference_id,
+                        registrationFeeId: $fee->id,
+                        countryId: $authorUser->country_id ?? $country->id,
+                        participantType: $fee->participant_type,
+                        attendanceMode: $sourceRegistration->attendance_mode,
+                        notes: 'Co-author participant for '.$submission->submission_code,
+                    ));
+                }
+
+                if ($isNewUser) {
+                    $authorUser->profile()->firstOrCreate(['user_id' => $authorUser->id], [
+                        'full_name' => $authorUser->name,
+                        'institution' => $authorUser->institution,
+                        'country_id' => $authorUser->country_id,
+                        'country' => $authorUser->country,
+                    ]);
+                    $authorUser->assignRole(UserRole::Participant);
+                    $authorUser->notify((new CoauthorAccountInvitation)->afterCommit());
+                }
+            }
+
             $submission->authors()->create([
+                'user_id' => $authorUser?->id,
+                'registration_id' => $authorRegistration?->id,
+                'participant' => (bool) ($author['participant'] ?? false),
                 'name' => $author['name'],
                 'email' => $author['email'] ?? null,
                 'affiliation' => $author['affiliation'] ?? null,

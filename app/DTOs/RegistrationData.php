@@ -24,7 +24,7 @@ class RegistrationData
             conferenceId: (int) $fee->conference_id,
             registrationFeeId: (int) $fee->id,
             countryId: (int) $data['country_id'],
-            participantType: (string) $data['participant_type'],
+            participantType: (string) $fee->participant_type,
             attendanceMode: $data['attendance_mode'] ?? null,
             notes: $data['notes'] ?? null,
         );

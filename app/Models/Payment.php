@@ -43,6 +43,12 @@ class Payment extends Model
         return 'Rp'.number_format((int) $this->amount, 0, ',', '.');
     }
 
+    public function isLockedForParticipant(): bool
+    {
+        return $this->status !== PaymentStatus::Rejected
+            && (filled($this->proof_file) || in_array($this->status, [PaymentStatus::Submitted, PaymentStatus::Verified], true));
+    }
+
     /**
      * @return array<string, string>
      */

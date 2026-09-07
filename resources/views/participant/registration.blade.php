@@ -5,13 +5,17 @@
 @section('content')
     <div class="row g-3">
         <div class="col-12 col-xl-8">
+            @if ($registration?->payment?->isLockedForParticipant())
+                <div class="alert alert-info" role="status">Registration locked because payment proof has been submitted. <a href="{{ route('participant.payment') }}">View payment</a></div>
+            @endif
             <form method="POST" action="{{ route('participant.registration.store') }}" class="card participant-card border-0 shadow-sm">
                 @csrf
+                <fieldset @disabled($registration?->payment?->isLockedForParticipant())>
 
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label fw-semibold" for="registration-fee-id">Fee category</label>
+                            <label class="form-label fw-semibold" for="registration-fee-id">Participation type & fee</label>
                             <select
                                 class="form-select @error('registration_fee_id') is-invalid @enderror"
                                 id="registration-fee-id"
@@ -31,13 +35,13 @@
                         <div class="col-12 col-md-6">
                             <label class="form-label fw-semibold" for="registration-country-id">Country</label>
                             <select
-                                class="form-select @error('country_id') is-invalid @enderror"
+                                class="form-select js-select2 @error('country_id') is-invalid @enderror"
                                 id="registration-country-id"
                                 name="country_id"
                             >
                                 <option value="">Select country</option>
                                 @foreach ($countries as $country)
-                                    <option value="{{ $country->id }}" @selected((int) old('country_id', $registration?->country_id ?? auth()->user()->country_id) === $country->id)>
+                                    <option value="{{ $country->id }}" @selected((int) old('country_id', $registration?->country_id ?? auth()->user()->country_id ?? $defaultCountryId) === $country->id)>
                                         {{ $country->name }}
                                     </option>
                                 @endforeach
@@ -45,15 +49,6 @@
                             @error('country_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                        </div>
-
-                        <div class="col-12 col-md-6">
-                            <label class="form-label fw-semibold" for="registration-participant-type">Participation type</label>
-                            <select class="form-select" id="registration-participant-type" name="participant_type">
-                                <option value="internal_student" @selected(old('participant_type', $registration?->participant_type) === 'internal_student')>Internal Participant / Student</option>
-                                <option value="general" @selected(old('participant_type', $registration?->participant_type) === 'general')>General Participant</option>
-                                <option value="presenter" @selected(old('participant_type', $registration?->participant_type) === 'presenter')>Presenter</option>
-                            </select>
                         </div>
 
                         <div class="col-12 col-md-6">
@@ -84,6 +79,7 @@
                         <i class="ti ti-device-floppy me-1"></i>Save Registration
                     </button>
                 </div>
+                </fieldset>
             </form>
         </div>
 

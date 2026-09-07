@@ -60,6 +60,11 @@
             </div>
 
             <div class="col-12 col-xl-8">
+                @if ($payment?->isLockedForParticipant())
+                    <div class="alert alert-info" role="status">
+                        <i class="ti ti-lock me-1"></i>Payment locked. Your proof has been submitted and cannot be changed. You can upload a replacement if the committee rejects it.
+                    </div>
+                @else
                 <form method="POST" action="{{ route('participant.payment.store') }}" enctype="multipart/form-data" class="card participant-card border-0 shadow-sm" data-payment-form>
                     @csrf
 
@@ -115,6 +120,7 @@
                         </button>
                     </div>
                 </form>
+                @endif
             </div>
         </div>
     @endif

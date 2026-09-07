@@ -34,6 +34,7 @@ class RegistrationController extends Controller
         return view('participant.registration', [
             'conference' => $conference,
             'countries' => Country::query()->active()->ordered()->get(['id', 'name']),
+            'defaultCountryId' => Country::query()->active()->where('iso2', 'ID')->value('id'),
             'registration' => $registration,
         ]);
     }

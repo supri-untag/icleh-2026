@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\PaymentVerificationController;
 use App\Http\Controllers\Admin\SubmissionDecisionController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\CoauthorAccountController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Participant\DashboardController as ParticipantDashboardController;
@@ -47,6 +48,9 @@ Route::get('/verify/loa/{code}', [PublicPageController::class, 'verifyLoa'])->na
 Route::get('/verify/certificate/{code}', [PublicPageController::class, 'verifyCertificate'])->name('verify.certificate');
 
 Route::middleware('guest')->group(function (): void {
+    Route::get('/coauthor/account/{token}', [CoauthorAccountController::class, 'edit'])->name('coauthor.account.edit');
+    Route::post('/coauthor/account', [CoauthorAccountController::class, 'update'])->middleware('throttle:6,1')->name('coauthor.account.update');
+    Route::post('/coauthor/account/resend', [CoauthorAccountController::class, 'resend'])->middleware('throttle:6,1')->name('coauthor.account.resend');
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])->middleware('throttle:login');
     Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');

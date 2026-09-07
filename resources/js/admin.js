@@ -23,7 +23,7 @@ window.JSZip = JSZip;
 window.Swal = Swal;
 
 pdfMake.vfs = pdfFonts.vfs;
-select2($);
+select2(window, $);
 
 const sidebar = document.getElementById('sidebar');
 const content = document.getElementById('content');
@@ -275,3 +275,41 @@ overlay?.addEventListener('click', () => {
 });
 
 $('.js-select2').select2({ width: '100%' });
+
+document.querySelectorAll('[data-coauthors]').forEach((container) => {
+    const list = container.querySelector('[data-coauthor-list]');
+    const template = container.querySelector('[data-coauthor-template]');
+    const addButton = container.querySelector('[data-add-coauthor]');
+    let nextIndex = list.children.length;
+
+    const syncRows = () => {
+        addButton.disabled = list.children.length >= 10;
+        list.querySelectorAll('[data-coauthor-row]').forEach((row) => {
+            const hasAuthorDetails = Array.from(row.querySelectorAll('input:not([type="checkbox"])')).some((input) => input.value.trim() !== '');
+            row.querySelector('[data-coauthor-email]').required = hasAuthorDetails || row.querySelector('[data-coauthor-participant]').checked;
+        });
+    };
+
+    addButton.addEventListener('click', () => {
+        if (list.children.length >= 10) {
+            return;
+        }
+        list.insertAdjacentHTML('beforeend', template.innerHTML.replaceAll('__INDEX__', String(nextIndex++)));
+        $(list.lastElementChild).find('.js-select2').select2({ width: '100%' });
+        list.lastElementChild.querySelector('input').focus();
+        syncRows();
+    });
+
+    list.addEventListener('click', (event) => {
+        const removeButton = event.target.closest('[data-remove-coauthor]');
+        if (removeButton) {
+            const row = removeButton.closest('[data-coauthor-row]');
+            $(row).find('.js-select2').select2('destroy');
+            row.remove();
+            syncRows();
+        }
+    });
+    list.addEventListener('change', syncRows);
+    list.addEventListener('input', syncRows);
+    syncRows();
+});

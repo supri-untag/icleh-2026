@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Participant;
 use App\DTOs\SubmissionData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Participant\SubmissionRequest;
+use App\Models\Country;
 use App\Models\Registration;
 use App\Models\Submission;
 use App\Services\ConferenceContext;
@@ -48,6 +49,7 @@ class SubmissionController extends Controller
         return view('participant.submission-show', [
             'conference' => $conference,
             'submission' => null,
+            'countries' => Country::query()->active()->ordered()->get(['name']),
             'registration' => $registration,
         ]);
     }

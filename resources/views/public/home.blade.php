@@ -33,8 +33,10 @@
             <p class="summit-date">{{ $conference->start_date->format('d M') }} – {{ $conference->end_date->format('d M Y') }} <span aria-hidden="true">·</span> {{ $conference->location }}</p>
             <p class="mt-8 text-sm font-bold uppercase tracking-[0.25em] text-icleh-gold-light">5th ICLEH 2026</p>
             <h1 class="mx-auto mt-5 max-w-5xl text-4xl font-bold leading-tight tracking-tight md:text-6xl">International Conference on<br class="hidden md:block"> Law, Economy, and Health</h1>
-            <p class="mx-auto mt-6 max-w-3xl text-lg leading-8 text-white/90">Theme: {{ $conference->theme }}</p>
-            <p class="mt-5 text-sm leading-7 text-white/75">Connecting research, policy, and practice.<br>Join ICLEH in Semarang or participate online.</p>
+            <div class="mx-auto mt-6 max-w-3xl rounded-2xl bg-black/65 px-5 py-5 text-white md:px-8">
+                <p class="text-lg font-semibold leading-8">Theme: {{ $conference->theme }}</p>
+                <p class="mt-4 text-base leading-7">Connecting research, policy, and practice.<br>Join ICLEH in Semarang or participate online.</p>
+            </div>
             <div class="mt-8 flex flex-wrap justify-center gap-4">
                 <a href="{{ route('register') }}" class="landing-button landing-button-primary">Join as Participant <span class="ml-3" aria-hidden="true">↗</span></a>
                 <a href="{{ route('participant.submissions.create') }}" class="landing-button border border-white/30 bg-white/10 text-white">Join as Presenter <span class="ml-3" aria-hidden="true">↗</span></a>
@@ -114,16 +116,19 @@
                 <h2 class="mt-5 text-3xl font-semibold text-darken">Speakers & Academic Leaders</h2>
                 <p class="mt-4 leading-7 text-gray-500">Meet invited academics, practitioners, and institutional leaders joining ICLEH 2026.</p>
             </div>
-            <div class="mt-10 grid gap-12">
+            <div class="mt-10 grid gap-12" data-speaker-tabs>
+                <div class="speaker-tabs" role="tablist" aria-label="Speaker categories">
+                    <button class="speaker-tab" id="keynote-tab" type="button" role="tab" aria-selected="true" aria-controls="keynote-panel" tabindex="0">Keynote Speakers</button>
+                    <button class="speaker-tab" id="regular-tab" type="button" role="tab" aria-selected="false" aria-controls="regular-panel" tabindex="-1">Speakers</button>
+                </div>
                 @foreach ([
-                    ['title' => 'Keynote Speakers', 'speakers' => $keynoteSpeakers, 'columns' => 'md:grid-cols-2'],
-                    ['title' => 'Speakers', 'speakers' => $regularSpeakers, 'columns' => 'md:grid-cols-2 lg:grid-cols-3'],
+                    ['id' => 'keynote', 'title' => 'Keynote Speakers', 'speakers' => $keynoteSpeakers, 'columns' => 'md:grid-cols-2'],
+                    ['id' => 'regular', 'title' => 'Speakers', 'speakers' => $regularSpeakers, 'columns' => 'md:grid-cols-2 lg:grid-cols-3'],
                 ] as $speakerSection)
-                    @if ($speakerSection['speakers']->isNotEmpty())
-                        <div>
-                            <h3 class="mb-5 text-2xl font-bold text-darken">{{ $speakerSection['title'] }}</h3>
+                        <div id="{{ $speakerSection['id'] }}-panel" role="tabpanel" aria-labelledby="{{ $speakerSection['id'] }}-tab" tabindex="0" @if (! $loop->first) hidden @endif>
+                            <h3 class="sr-only">{{ $speakerSection['title'] }}</h3>
                             <div class="grid gap-5 {{ $speakerSection['columns'] }}">
-                                @foreach ($speakerSection['speakers'] as $speaker)
+                                @forelse ($speakerSection['speakers'] as $speaker)
                                     <article class="speaker-card rounded-2xl bg-white p-6 shadow-xl">
                                         @php
                                             $speakerPhotoUrl = $speaker->photoUrl();
@@ -140,10 +145,11 @@
                                         <p class="mt-2 text-sm text-gray-500">{{ $speaker->affiliation }}</p>
                                         <p class="mt-1 text-sm text-gray-500">{{ $speaker->country }}</p>
                                     </article>
-                                @endforeach
+                                @empty
+                                    <p class="col-span-full rounded-2xl bg-white p-8 text-center text-gray-500">{{ $speakerSection['title'] }} will be announced soon.</p>
+                                @endforelse
                             </div>
                         </div>
-                    @endif
                 @endforeach
                 <div class="text-center">
                     <a href="{{ route('speakers') }}" class="landing-button border border-yellow-500 text-yellow-500">View All Speakers</a>
