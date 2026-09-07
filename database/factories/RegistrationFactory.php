@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\RegistrationStatus;
 use App\Models\Conference;
+use App\Models\Country;
 use App\Models\Registration;
 use App\Models\RegistrationFee;
 use App\Models\User;
@@ -22,9 +23,12 @@ class RegistrationFactory extends Factory
      */
     public function definition(): array
     {
+        $country = Country::query()->where('iso2', 'ID')->first();
+
         return [
             'conference_id' => Conference::factory(),
             'user_id' => User::factory(),
+            'country_id' => $country?->id,
             'registration_fee_id' => RegistrationFee::factory(),
             'registration_code' => 'REG-'.Str::upper(Str::random(8)),
             'participant_type' => 'presenter',

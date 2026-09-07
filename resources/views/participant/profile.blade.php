@@ -13,7 +13,6 @@
                     'full_name' => 'Full name',
                     'whatsapp' => 'WhatsApp',
                     'institution' => 'Institution',
-                    'country' => 'Country',
                 ] as $field => $label)
                     @php
                         $inputId = 'profile-'.$field;
@@ -33,6 +32,25 @@
                         @enderror
                     </div>
                 @endforeach
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-semibold" for="profile-country-id">Country</label>
+                    <select
+                        class="form-select @error('country_id') is-invalid @enderror"
+                        id="profile-country-id"
+                        name="country_id"
+                    >
+                        <option value="">Select country</option>
+                        @foreach ($countries as $country)
+                            <option value="{{ $country->id }}" @selected((int) old('country_id', $user->profile?->country_id ?? $user->country_id) === $country->id)>
+                                {{ $country->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('country_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
                 <div class="col-12 col-md-6">
                     <label class="form-label fw-semibold" for="profile-participant-type">Participation type</label>

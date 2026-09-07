@@ -3,7 +3,6 @@
 @section('title', '5th ICLEH 2026 - International Conference on Law, Economy, and Health')
 
 @php
-    $landingImage = fn (string $path): string => asset('images/landing/'.$path);
     $keynoteSpeakers = $conference->speakers
         ->filter(fn ($speaker) => $speaker->type === 'keynote')
         ->values();
@@ -29,57 +28,90 @@
 @endphp
 
 @section('content')
-    <section class="landing-hero">
-        <div class="mx-auto flex min-h-[720px] max-w-screen-xl items-center px-8 pb-28 pt-20">
-            <div class="max-w-3xl text-center lg:text-left">
-                <p class="mb-3 text-sm font-bold uppercase tracking-widest text-icleh-gold-light">International Conference</p>
-                <h1 class="my-4 text-5xl font-bold leading-tight text-white md:text-7xl">
-                    <sup class="text-3xl leading-none md:text-4xl">5th</sup>
-                    <span class="text-icleh-gold-light">ICLEH</span> 2026
-                </h1>
-                <p class="mb-5 text-2xl font-semibold leading-normal text-white">International Conference on Law, Economy, and Health</p>
-                <p class="mb-4 max-w-2xl text-lg leading-8 text-white/80">{{ $conference->theme }}</p>
-                <p class="mb-8 max-w-2xl font-semibold text-white/85">{{ $conference->start_date->format('d') }}-{{ $conference->end_date->format('d M Y') }} | {{ $conference->venue_name ?? $conference->location }}</p>
-                <div class="w-full space-y-4 md:flex md:items-center md:justify-center md:space-x-5 md:space-y-0 lg:justify-start">
-                    <a href="{{ route('register') }}" class="landing-button landing-button-primary">Register Now</a>
-                    <a href="#program" class="landing-button border border-white/70 text-white">View Program</a>
-                    <a href="{{ route('participant.submissions.create') }}" class="inline-flex items-center justify-center gap-3 font-semibold text-white transition hover:scale-105">
-                        <span class="flex size-14 items-center justify-center rounded-full border border-white/25 bg-white/15 text-white shadow-lg">
-                            <span class="ml-1 block size-0 border-y-[8px] border-l-[12px] border-y-transparent border-l-current"></span>
-                        </span>
-                        Submit abstract
-                    </a>
-                </div>
+    <section class="summit-hero">
+        <div class="icleh-container relative z-10 text-center">
+            <p class="summit-date">{{ $conference->start_date->format('d M') }} – {{ $conference->end_date->format('d M Y') }} <span aria-hidden="true">·</span> {{ $conference->location }}</p>
+            <p class="mt-8 text-sm font-bold uppercase tracking-[0.25em] text-icleh-gold-light">5th ICLEH 2026</p>
+            <h1 class="mx-auto mt-5 max-w-5xl text-4xl font-bold leading-tight tracking-tight md:text-6xl">International Conference on<br class="hidden md:block"> Law, Economy, and Health</h1>
+            <p class="mx-auto mt-6 max-w-3xl text-lg leading-8 text-white/90">Theme: {{ $conference->theme }}</p>
+            <p class="mt-5 text-sm leading-7 text-white/75">Connecting research, policy, and practice.<br>Join ICLEH in Semarang or participate online.</p>
+            <div class="mt-8 flex flex-wrap justify-center gap-4">
+                <a href="{{ route('register') }}" class="landing-button landing-button-primary">Join as Participant <span class="ml-3" aria-hidden="true">↗</span></a>
+                <a href="{{ route('participant.submissions.create') }}" class="landing-button border border-white/30 bg-white/10 text-white">Join as Presenter <span class="ml-3" aria-hidden="true">↗</span></a>
             </div>
-        </div>
-        <div class="landing-wave">
-            <svg class="xl:h-40 xl:w-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                <path d="M600,112.77C268.63,112.77,0,65.52,0,7.23V120H1200V7.23C1200,65.52,931.37,112.77,600,112.77Z" fill="currentColor"></path>
-            </svg>
-            <div class="-mt-px h-12 w-full bg-white sm:h-20"></div>
+            <div class="mx-auto mt-12 flex max-w-2xl flex-wrap justify-center gap-3 border-t border-white/20 pt-7 text-xs font-semibold uppercase tracking-widest text-white/80">
+                <span>Law</span><span aria-hidden="true">·</span><span>Economy</span><span aria-hidden="true">·</span><span>Health</span><span aria-hidden="true">·</span><span>Artificial Intelligence</span>
+            </div>
+            <a href="#about" class="mt-10 inline-flex flex-col gap-2 text-xs text-white/70">Explore the conference <span class="text-xl" aria-hidden="true">↓</span></a>
         </div>
     </section>
+    <div class="summit-highlights">
+        <div class="icleh-container grid grid-cols-2 gap-6 py-8 text-center md:grid-cols-4">
+            <div><strong>5th</strong><span>Conference edition</span></div>
+            <div><strong>{{ $conference->topics->count() }}</strong><span>Research scopes</span></div>
+            <div><strong>{{ $conference->speakers->count() }}</strong><span>Invited speakers</span></div>
+            <div><strong>Hybrid</strong><span>Semarang & online</span></div>
+        </div>
+    </div>
 
-    <div class="container mx-auto max-w-screen-xl overflow-x-hidden px-4 text-gray-700 lg:px-8">
+    <div class="summit-content container mx-auto max-w-screen-xl px-4 text-gray-700 lg:px-8">
         <section id="about" class="mt-24 grid items-center gap-10 lg:grid-cols-2">
             <div class="relative">
-                <div class="absolute -left-4 -top-3 z-0 size-12 animate-pulse rounded-full bg-yellow-500"></div>
+                <div class="hidden"></div>
                 <span class="landing-kicker">About the Conference</span>
                 <h2 class="relative z-10 mt-5 text-3xl font-semibold text-darken lg:pr-10">Reimagining law, economy, and health in the age of <span class="text-yellow-500">artificial intelligence.</span></h2>
                 <p class="py-5 leading-8 text-gray-500 lg:pr-20">{{ $conference->description }}</p>
                 <a href="{{ route('about') }}" class="mt-7 inline-flex font-semibold text-yellow-500 underline">Learn More</a>
             </div>
             <div class="relative">
-                <div class="floating absolute -left-3 -top-3 z-0 size-24 rounded-2xl bg-skilline-cyan"></div>
+                <div class="hidden absolute -left-3 -top-3 z-0 size-24 rounded-2xl bg-skilline-cyan"></div>
                 <img class="relative z-10 rounded-2xl" src="{{ Vite::asset('resources/images/sample-run.jpg') }}" alt="ICLEH conference participants">
-                <div class="floating absolute -bottom-3 -right-3 z-0 size-40 rounded-2xl bg-yellow-500"></div>
+                <div class="hidden absolute -bottom-3 -right-3 z-0 size-40 rounded-2xl bg-yellow-500"></div>
+            </div>
+        </section>
+
+        <section id="program" class="mt-32">
+            <div class="mx-auto max-w-2xl text-center">
+                <span class="landing-kicker">Program</span>
+                <h2 class="mt-5 text-3xl font-semibold text-darken">Conference Agenda</h2>
+                <p class="mt-4 leading-7 text-gray-500">Follow the plenary agenda, chamber schedule, and hybrid venue information for ICLEH 2026.</p>
+            </div>
+            <div class="mt-10 grid gap-8 lg:grid-cols-1">
+                <div>
+                    <h3 class="mb-5 text-2xl font-bold text-darken">Schedule</h3>
+                    <div class="grid gap-5">
+                        @forelse ($conference->days as $day)
+                            <article class="rounded-2xl bg-white p-6 shadow-xl">
+                                <div class="flex flex-wrap items-start justify-between gap-4">
+                                    <div>
+                                        <p class="text-sm font-bold uppercase tracking-wider text-yellow-500">{{ $day->label }}</p>
+                                        <h4 class="mt-1 text-xl font-bold text-darken">{{ $day->date->format('d M Y') }}</h4>
+                                    </div>
+                                    <a href="{{ route('program') }}" class="text-sm font-semibold text-yellow-500 underline">Full Schedule</a>
+                                </div>
+                                <div class="mt-5 grid gap-3">
+                                    @forelse ($day->schedules as $schedule)
+                                        <div class="rounded-2xl bg-cream p-4">
+                                            <p class="font-bold text-darken">{{ $schedule->title }}</p>
+                                            <p class="mt-1 text-sm text-gray-500">{{ mb_substr((string) $schedule->start_time, 0, 5) }} - {{ mb_substr((string) $schedule->end_time, 0, 5) }} | {{ $schedule->chamber?->name ?? 'Main Hall' }}</p>
+                                        </div>
+                                    @empty
+                                        <p class="text-sm text-gray-500">Program will be published by the committee.</p>
+                                    @endforelse
+                                </div>
+                            </article>
+                        @empty
+                            <div class="rounded-2xl bg-white p-6 text-gray-500 shadow-xl">Program will be published by the committee.</div>
+                        @endforelse
+                    </div>
+                </div>
             </div>
         </section>
 
         <section id="speakers" class="mt-32">
             <div class="mx-auto max-w-2xl text-center">
                 <span class="landing-kicker">Keynotes and Speaker</span>
-                <h2 class="mt-5 text-3xl font-semibold text-darken">Keynote Speakers and Speakers</h2>
+                <h2 class="mt-5 text-3xl font-semibold text-darken">Speakers & Academic Leaders</h2>
                 <p class="mt-4 leading-7 text-gray-500">Meet invited academics, practitioners, and institutional leaders joining ICLEH 2026.</p>
             </div>
             <div class="mt-10 grid gap-12">
@@ -126,7 +158,7 @@
                 <p class="mt-4 leading-7">Each scope includes focused subthemes and related keywords curated for ICLEH 2026.</p>
             </div>
 
-            <div class="mx-auto mt-8 grid max-w-4xl gap-4">
+            <div class="mx-auto mt-8 grid gap-4 md:grid-cols-2">
                 @foreach ($conference->topics as $topic)
                     @php
                         $subthemes = collect($topic->keywords ?? [])->filter()->values();
@@ -158,6 +190,29 @@
 
             <div class="mt-8 text-center">
                 <a href="{{ route('topics') }}" class="font-semibold text-yellow-500 underline">View All Scopes</a>
+            </div>
+        </section>
+
+        <section id="important-dates" class="mt-32">
+            <div class="text-center">
+                <span class="landing-kicker">Mark your calendar</span>
+                <h2 class="mt-5 text-3xl font-semibold text-darken">Important Dates</h2>
+                <p class="mt-4 text-gray-500">Plan your submission and participation in ICLEH 2026.</p>
+            </div>
+            <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                @forelse ($conference->dates as $date)
+                    <article class="rounded-2xl border border-gray-200 bg-white p-6">
+                        <p class="text-xs font-bold uppercase tracking-widest text-yellow-500">{{ $date->status->label() }}</p>
+                        <p class="mt-5 text-3xl font-bold text-darken">{{ $date->starts_at?->format('d M') ?? 'TBA' }}</p>
+                        <p class="mt-1 text-sm text-gray-500">{{ $date->starts_at?->format('Y') }}</p>
+                        <h3 class="mt-5 font-semibold text-darken">{{ $date->name }}</h3>
+                        @if ($date->ends_at)
+                            <p class="mt-2 text-sm text-gray-500">Until {{ $date->ends_at->format('d M Y') }}</p>
+                        @endif
+                    </article>
+                @empty
+                    <p class="text-gray-500">Important dates will be published by the committee.</p>
+                @endforelse
             </div>
         </section>
 
@@ -213,41 +268,12 @@
             @endif
         </section>
 
-        <section id="program" class="my-32">
-            <div class="mx-auto max-w-2xl text-center">
-                <span class="landing-kicker">Program</span>
-                <h2 class="mt-5 text-3xl font-semibold text-darken">Schedule and Conference Location</h2>
-                <p class="mt-4 leading-7 text-gray-500">Follow the plenary agenda, chamber schedule, and hybrid venue information for ICLEH 2026.</p>
+
+        <section id="venue" class="my-32">
+            <div class="mb-8 text-center">
+                <span class="landing-kicker">Meet us in Semarang</span>
+                <h2 class="mt-5 text-3xl font-semibold text-darken">Conference Venue</h2>
             </div>
-            <div class="mt-10 grid gap-8 lg:grid-cols-[1.25fr_0.75fr]">
-                <div>
-                    <h3 class="mb-5 text-2xl font-bold text-darken">Schedule</h3>
-                    <div class="grid gap-5">
-                        @forelse ($conference->days as $day)
-                            <article class="rounded-2xl bg-white p-6 shadow-xl">
-                                <div class="flex flex-wrap items-start justify-between gap-4">
-                                    <div>
-                                        <p class="text-sm font-bold uppercase tracking-wider text-yellow-500">{{ $day->label }}</p>
-                                        <h4 class="mt-1 text-xl font-bold text-darken">{{ $day->date->format('d M Y') }}</h4>
-                                    </div>
-                                    <a href="{{ route('program') }}" class="text-sm font-semibold text-yellow-500 underline">Full Schedule</a>
-                                </div>
-                                <div class="mt-5 grid gap-3">
-                                    @forelse ($day->schedules->take(3) as $schedule)
-                                        <div class="rounded-2xl bg-cream p-4">
-                                            <p class="font-bold text-darken">{{ $schedule->title }}</p>
-                                            <p class="mt-1 text-sm text-gray-500">{{ mb_substr((string) $schedule->start_time, 0, 5) }} - {{ mb_substr((string) $schedule->end_time, 0, 5) }} | {{ $schedule->chamber?->name ?? 'Main Hall' }}</p>
-                                        </div>
-                                    @empty
-                                        <p class="text-sm text-gray-500">Program will be published by the committee.</p>
-                                    @endforelse
-                                </div>
-                            </article>
-                        @empty
-                            <div class="rounded-2xl bg-white p-6 text-gray-500 shadow-xl">Program will be published by the committee.</div>
-                        @endforelse
-                    </div>
-                </div>
                 <div>
                     <h3 class="mb-5 text-2xl font-bold text-darken">Conference Location</h3>
                     <article class="rounded-2xl bg-white p-6 shadow-xl">
@@ -274,6 +300,13 @@
                         </div>
                     </article>
                 </div>
+        </section>
+        <section class="summit-cta mb-16 rounded-3xl p-8 text-center md:p-14">
+            <span class="text-sm font-semibold uppercase tracking-widest text-icleh-gold-light">Be part of ICLEH 2026</span>
+            <h2 class="mt-4 text-3xl font-bold text-white md:text-4xl">Bring your research to the conversation.</h2>
+            <div class="mt-7 flex flex-wrap justify-center gap-4">
+                <a href="{{ route('participant.submissions.create') }}" class="landing-button landing-button-primary">Submit Your Abstract</a>
+                <a href="{{ route('contact') }}" class="landing-button border border-white/30 text-white">Contact the Committee</a>
             </div>
         </section>
     </div>

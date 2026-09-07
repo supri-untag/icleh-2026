@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 #[Fillable([
     'conference_id',
     'user_id',
+    'country_id',
     'registration_fee_id',
     'registration_code',
     'participant_type',
@@ -35,6 +36,11 @@ class Registration extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class);
     }
 
     public function fee(): BelongsTo

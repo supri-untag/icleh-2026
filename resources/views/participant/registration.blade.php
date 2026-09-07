@@ -29,6 +29,25 @@
                         </div>
 
                         <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold" for="registration-country-id">Country</label>
+                            <select
+                                class="form-select @error('country_id') is-invalid @enderror"
+                                id="registration-country-id"
+                                name="country_id"
+                            >
+                                <option value="">Select country</option>
+                                @foreach ($countries as $country)
+                                    <option value="{{ $country->id }}" @selected((int) old('country_id', $registration?->country_id ?? auth()->user()->country_id) === $country->id)>
+                                        {{ $country->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('country_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-12 col-md-6">
                             <label class="form-label fw-semibold" for="registration-participant-type">Participation type</label>
                             <select class="form-select" id="registration-participant-type" name="participant_type">
                                 <option value="internal_student" @selected(old('participant_type', $registration?->participant_type) === 'internal_student')>Internal Participant / Student</option>
@@ -78,6 +97,10 @@
                         <div>
                             <dt class="small text-secondary">Registration code</dt>
                             <dd class="fw-semibold mb-0 text-break-balanced">{{ $registration?->registration_code ?? '-' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="small text-secondary">Country</dt>
+                            <dd class="fw-semibold mb-0 text-break-balanced">{{ $registration?->country?->name ?? auth()->user()->country ?? '-' }}</dd>
                         </div>
                         <div>
                             <dt class="small text-secondary">Status</dt>

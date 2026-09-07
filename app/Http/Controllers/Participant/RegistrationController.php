@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Participant;
 use App\DTOs\RegistrationData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Participant\RegistrationRequest;
+use App\Models\Country;
 use App\Models\Registration;
 use App\Models\RegistrationFee;
 use App\Services\ConferenceContext;
@@ -27,11 +28,12 @@ class RegistrationController extends Controller
         $registration = Registration::query()
             ->whereBelongsTo($conference)
             ->whereBelongsTo(request()->user())
-            ->with(['fee', 'payment'])
+            ->with(['country', 'fee', 'payment'])
             ->first();
 
         return view('participant.registration', [
             'conference' => $conference,
+            'countries' => Country::query()->active()->ordered()->get(['id', 'name']),
             'registration' => $registration,
         ]);
     }

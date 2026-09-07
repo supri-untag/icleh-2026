@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Country;
 use App\Models\Faq;
 use App\Models\Role;
 use App\Models\Speaker;
@@ -70,6 +71,7 @@ class AdminCrudTest extends TestCase
     {
         $admin = User::query()->where('email', config('icleh.admin.email'))->firstOrFail();
         $adminRole = Role::query()->where('name', 'admin')->firstOrFail();
+        $country = Country::query()->where('iso2', 'ID')->firstOrFail();
         $email = 'crud-user@example.test';
 
         $this->actingAs($admin)
@@ -78,7 +80,7 @@ class AdminCrudTest extends TestCase
                 'email' => $email,
                 'whatsapp' => '+6200000001',
                 'institution' => 'ICLEH Test',
-                'country' => 'Indonesia',
+                'country_id' => $country->id,
                 'password' => 'password123',
                 'password_confirmation' => 'password123',
                 'email_verified' => 1,
@@ -90,6 +92,8 @@ class AdminCrudTest extends TestCase
         $user = User::query()->where('email', $email)->with('roles')->firstOrFail();
 
         $this->assertNotNull($user->email_verified_at);
+        $this->assertSame($country->id, $user->country_id);
+        $this->assertSame($country->name, $user->country);
         $this->assertSame(['admin'], $user->roles->pluck('name')->all());
 
         $this->actingAs($admin)
@@ -98,7 +102,7 @@ class AdminCrudTest extends TestCase
                 'email' => $email,
                 'whatsapp' => '+6200000002',
                 'institution' => 'ICLEH Test Updated',
-                'country' => 'Indonesia',
+                'country_id' => $country->id,
                 'password' => '',
                 'password_confirmation' => '',
                 'email_verified' => 0,

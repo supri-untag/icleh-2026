@@ -9,6 +9,7 @@ class RegistrationData
     public function __construct(
         public readonly int $conferenceId,
         public readonly int $registrationFeeId,
+        public readonly int $countryId,
         public readonly string $participantType,
         public readonly ?string $attendanceMode,
         public readonly ?string $notes,
@@ -22,6 +23,7 @@ class RegistrationData
         return new self(
             conferenceId: (int) $fee->conference_id,
             registrationFeeId: (int) $fee->id,
+            countryId: (int) $data['country_id'],
             participantType: (string) $data['participant_type'],
             attendanceMode: $data['attendance_mode'] ?? null,
             notes: $data['notes'] ?? null,

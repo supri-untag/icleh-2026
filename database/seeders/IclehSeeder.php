@@ -12,6 +12,7 @@ use App\Models\ConferenceDate;
 use App\Models\ConferenceDay;
 use App\Models\ConferenceSetting;
 use App\Models\ConferenceTopic;
+use App\Models\Country;
 use App\Models\DocumentTemplate;
 use App\Models\EmailTemplate;
 use App\Models\Faq;
@@ -19,8 +20,10 @@ use App\Models\Page;
 use App\Models\PageSection;
 use App\Models\Partner;
 use App\Models\Permission;
+use App\Models\Profile;
 use App\Models\ProgramSchedule;
 use App\Models\ProgramSession;
+use App\Models\Registration;
 use App\Models\RegistrationFee;
 use App\Models\Role;
 use App\Models\Speaker;
@@ -37,8 +40,11 @@ class IclehSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(CountrySeeder::class);
+
         $roles = $this->seedRoles();
         $this->seedPermissions($roles);
+        $indonesia = Country::query()->where('iso2', 'ID')->firstOrFail();
 
         $adminPassword = config('icleh.admin.password') ?: 'pass';
         $admin = User::query()->updateOrCreate(
@@ -47,7 +53,8 @@ class IclehSeeder extends Seeder
                 'name' => 'ICLEH Super Admin',
                 'whatsapp' => '+6280000000000',
                 'institution' => 'Faculty of Law, Universitas 17 Agustus 1945 Semarang',
-                'country' => 'Indonesia',
+                'country_id' => $indonesia->id,
+                'country' => $indonesia->name,
                 'email_verified_at' => now(),
                 'password' => Hash::make($adminPassword),
             ],
@@ -86,6 +93,7 @@ class IclehSeeder extends Seeder
         $this->seedVenueAndProgram($conference);
         $this->seedCms($conference);
         $this->seedEmailTemplates($conference);
+        $this->syncExistingCountryRelations();
     }
 
     /**
@@ -399,5 +407,37 @@ class IclehSeeder extends Seeder
                 ],
             );
         }
+    }
+
+    private function syncExistingCountryRelations(): void
+    {
+        $countryIdsByName = Country::query()
+            ->get(['id', 'name'])
+            ->mapWithKeys(fn (Country $country): array => [Str::lower($country->name) => $country->id]);
+
+        foreach ([User::class, Profile::class] as $modelClass) {
+            $modelClass::query()
+                ->whereNull('country_id')
+                ->whereNotNull('country')
+                ->chunkById(100, function ($records) use ($countryIdsByName): void {
+                    foreach ($records as $record) {
+                        $countryId = $countryIdsByName->get(Str::lower(trim((string) $record->country)));
+
+                        if ($countryId) {
+                            $record->forceFill(['country_id' => $countryId])->save();
+                        }
+                    }
+                });
+        }
+
+        Registration::query()
+            ->whereNull('country_id')
+            ->whereHas('user', fn ($query) => $query->whereNotNull('country_id'))
+            ->with('user:id,country_id')
+            ->chunkById(100, function ($registrations): void {
+                foreach ($registrations as $registration) {
+                    $registration->forceFill(['country_id' => $registration->user->country_id])->save();
+                }
+            });
     }
 }

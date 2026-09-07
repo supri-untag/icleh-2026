@@ -266,3 +266,233 @@ body {
         margin-top: -6rem;
     }
 }
+
+/* Conference landing page */
+.summit-page {
+    --summit-ink: #202630;
+    --summit-accent: #b71924;
+    background: #fff;
+}
+
+.summit-announcement {
+    color: #fff;
+    background: #8f101c;
+}
+
+.summit-page .landing-header-home {
+    position: sticky;
+    background: #202630;
+    color: #fff;
+}
+
+.summit-page .landing-header-home.is-scrolled {
+    background: rgb(32 38 48 / 0.97);
+}
+
+.summit-page .landing-header-home .landing-header-link {
+    color: #fff;
+}
+
+.summit-page .landing-header-home .landing-header-link:hover {
+    color: #f5d873;
+}
+
+.summit-page .landing-header > div {
+    max-width: 1320px;
+    padding: 0.85rem 1.5rem;
+}
+
+.summit-page .landing-header-brand {
+    padding: 0.35rem 0.65rem;
+    background: white;
+}
+
+.summit-page .landing-header-brand img {
+    transform: none;
+}
+
+.summit-page .landing-header-portal {
+    margin-left: 0.5rem;
+    padding: 0.7rem 1.3rem;
+}
+
+.summit-hero {
+    position: relative;
+    isolation: isolate;
+    padding: clamp(4rem, 7vw, 7rem) 0 3rem;
+    color: white;
+    background: #34373b;
+}
+
+.summit-hero::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background: linear-gradient(120deg, rgb(20 25 31 / 0.84), rgb(36 29 30 / 0.72)), url('../images/bg-1.jpeg') center / cover;
+    content: '';
+}
+
+.summit-date {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1.1rem;
+    border: 1px solid rgb(255 255 255 / 0.25);
+    border-radius: 0.75rem;
+    background: rgb(255 255 255 / 0.08);
+    color: #f5d873;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.summit-page .landing-button {
+    border-radius: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.summit-page .landing-button-primary {
+    background: var(--summit-accent);
+    box-shadow: 0 8px 20px rgb(110 10 20 / 0.15);
+}
+
+.summit-highlights {
+    border-bottom: 1px solid #e7e7e7;
+    background: #faf8f6;
+}
+
+.summit-highlights strong,
+.summit-highlights span {
+    display: block;
+}
+
+.summit-highlights strong {
+    color: var(--summit-accent);
+    font-size: clamp(1.65rem, 3vw, 2.3rem);
+}
+
+.summit-highlights span {
+    margin-top: 0.35rem;
+    color: #667085;
+    font-size: 0.8rem;
+}
+
+.summit-content > section {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-block: clamp(3rem, 6vw, 5rem);
+    border-bottom: 1px solid #eceef0;
+    scroll-margin-top: 100px;
+}
+
+.summit-content .text-darken {
+    color: var(--summit-ink);
+}
+
+.summit-content .text-yellow-500 {
+    color: var(--summit-accent);
+}
+
+.summit-content .border-yellow-500 {
+    border-color: var(--summit-accent);
+}
+
+.summit-content .bg-cream {
+    background: #faf4f3;
+}
+
+.summit-content .shadow-xl,
+.summit-content .shadow-lg {
+    border: 1px solid #e7e7e7;
+    box-shadow: 0 8px 28px rgb(32 38 48 / 0.045);
+}
+
+.summit-content .landing-kicker {
+    color: var(--summit-accent);
+    font-size: 0.72rem;
+    letter-spacing: 0.17em;
+}
+
+.summit-content .landing-kicker::before {
+    display: none;
+}
+
+.summit-content h2 {
+    font-weight: 750;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+}
+
+.summit-content #program > div:last-child > div > h3,
+.summit-content #venue > div > h3 {
+    display: none;
+}
+
+.summit-content #program > div:last-child > div > .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+}
+
+.summit-content #venue article {
+    display: flow-root;
+}
+
+.summit-content #venue iframe {
+    height: 350px;
+}
+
+.summit-content .summit-cta {
+    margin-block: 3rem;
+    padding-inline: 1.5rem;
+    background: linear-gradient(125deg, #242a34, #411e25);
+}
+
+.summit-page footer {
+    margin-top: 0;
+    background: #202630;
+}
+
+.summit-page :is(a, summary):focus-visible {
+    outline: 3px solid #e2b13c;
+    outline-offset: 4px;
+}
+
+@media (min-width: 1024px) {
+    .summit-content #venue article > div:first-child {
+        float: right;
+        width: 58%;
+        margin: 0 0 0 2rem;
+    }
+}
+
+@media (max-width: 1023px) {
+    .summit-page .landing-header .landing-nav {
+        display: none;
+    }
+
+    .summit-page .landing-header .landing-mobile-menu {
+        display: block;
+    }
+
+    .summit-page .landing-header > div,
+    .summit-page .landing-header > div > div {
+        width: 100%;
+    }
+
+    .summit-content #program > div:last-child > div > .grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    .summit-page *,
+    .summit-page *::before,
+    .summit-page *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}

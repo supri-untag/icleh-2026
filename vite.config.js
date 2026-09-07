@@ -14,6 +14,7 @@ export default defineConfig({
                 'resources/images/sample-run.jpg',
                 'resources/images/LOGO ICLEH.png',
                 'resources/images/banner_page.jpg',
+                'resources/images/bg-2.jpeg',
                 'resources/images/bgabout.png',
             ],
             refresh: true,

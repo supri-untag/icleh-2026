@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Country;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -24,12 +25,15 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $country = Country::query()->where('iso2', 'ID')->first();
+
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'whatsapp' => fake()->phoneNumber(),
             'institution' => fake()->company(),
-            'country' => 'Indonesia',
+            'country_id' => $country?->id,
+            'country' => $country?->name ?? 'Indonesia',
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),

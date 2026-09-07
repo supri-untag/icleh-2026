@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\ConferenceDate;
 use App\Models\ConferenceTopic;
+use App\Models\Country;
 use App\Models\Faq;
 use App\Models\Page;
 use App\Models\PageSection;
@@ -190,6 +191,12 @@ class AdminCrudController extends Controller
             unset($data['password']);
         }
 
+        if ($resource === 'users' && array_key_exists('country_id', $data)) {
+            $data['country'] = filled($data['country_id'])
+                ? Country::query()->whereKey($data['country_id'])->value('name')
+                : null;
+        }
+
         return $data;
     }
 
@@ -318,7 +325,7 @@ class AdminCrudController extends Controller
                 'email' => ['required', 'email', 'max:255', $this->uniqueRule('users', 'email', $record)],
                 'whatsapp' => ['nullable', 'string', 'max:255'],
                 'institution' => ['nullable', 'string', 'max:255'],
-                'country' => ['nullable', 'string', 'max:255'],
+                'country_id' => ['nullable', 'integer', Rule::exists('countries', 'id')->where('active', true)],
                 'password' => [$record ? 'nullable' : 'required', 'confirmed', Password::defaults()],
                 'email_verified' => ['nullable', 'boolean'],
                 'role_ids' => ['nullable', 'array'],
@@ -543,7 +550,7 @@ class AdminCrudController extends Controller
                     ['name' => 'email', 'label' => 'Email', 'type' => 'email', 'required' => true, 'col' => 'col-md-6'],
                     ['name' => 'whatsapp', 'label' => 'WhatsApp', 'type' => 'text', 'col' => 'col-md-4'],
                     ['name' => 'institution', 'label' => 'Institution', 'type' => 'text', 'col' => 'col-md-4'],
-                    ['name' => 'country', 'label' => 'Country', 'type' => 'text', 'col' => 'col-md-4'],
+                    ['name' => 'country_id', 'label' => 'Country', 'type' => 'select', 'options' => $this->countryOptions(), 'placeholder' => 'Select country', 'col' => 'col-md-4'],
                     ['name' => 'password', 'label' => 'Password', 'type' => 'password', 'col' => 'col-md-6', 'help' => 'Leave blank on edit to keep the current password.'],
                     ['name' => 'password_confirmation', 'label' => 'Confirm Password', 'type' => 'password', 'col' => 'col-md-6'],
                     ['name' => 'role_ids', 'label' => 'Roles', 'type' => 'multiselect', 'options' => $this->roleOptions(), 'col' => 'col-md-8'],
@@ -701,6 +708,14 @@ class AdminCrudController extends Controller
     private function roleOptions(): array
     {
         return Role::query()->orderBy('label')->pluck('label', 'id')->all();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function countryOptions(): array
+    {
+        return Country::query()->active()->ordered()->pluck('name', 'id')->all();
     }
 
     /**

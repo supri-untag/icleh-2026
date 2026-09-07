@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'full_name',
     'whatsapp',
     'institution',
+    'country_id',
     'country',
     'participant_type',
     'attendance_mode',
@@ -25,5 +26,10 @@ class Profile extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function countryRecord(): BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'country_id');
     }
 }

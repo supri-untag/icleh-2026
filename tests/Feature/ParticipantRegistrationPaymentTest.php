@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Conference;
 use App\Models\ConferenceTopic;
+use App\Models\Country;
 use App\Models\LoaDocument;
 use App\Models\Payment;
 use App\Models\Registration;
@@ -17,6 +18,64 @@ use Tests\TestCase;
 
 class ParticipantRegistrationPaymentTest extends TestCase
 {
+    public function test_profile_update_saves_country_relation(): void
+    {
+        $country = Country::query()->where('iso2', 'DE')->firstOrFail();
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->put(route('participant.profile.update'), [
+                'full_name' => 'Profile User',
+                'whatsapp' => '+49123456789',
+                'institution' => 'ICLEH Profile Institute',
+                'country_id' => $country->id,
+                'participant_type' => 'presenter',
+                'attendance_mode' => 'offline',
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $user->refresh()->load('profile');
+
+        $this->assertSame($country->id, $user->country_id);
+        $this->assertSame($country->name, $user->country);
+        $this->assertSame($country->id, $user->profile->country_id);
+        $this->assertSame($country->name, $user->profile->country);
+    }
+
+    public function test_participant_registration_saves_country_relation(): void
+    {
+        Queue::fake();
+
+        $conference = Conference::query()->where('slug', 'icleh-2026')->firstOrFail();
+        $fee = RegistrationFee::query()->whereBelongsTo($conference)->where('participant_type', 'presenter')->firstOrFail();
+        $country = Country::query()->where('iso2', 'SG')->firstOrFail();
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->post(route('participant.registration.store'), [
+                'registration_fee_id' => $fee->id,
+                'country_id' => $country->id,
+                'participant_type' => 'presenter',
+                'attendance_mode' => 'online',
+                'notes' => 'Country relation test.',
+            ])
+            ->assertRedirect(route('participant.payment'))
+            ->assertSessionHasNoErrors();
+
+        $registration = Registration::query()
+            ->whereBelongsTo($conference)
+            ->whereBelongsTo($user)
+            ->firstOrFail();
+
+        $user->refresh()->load('profile');
+
+        $this->assertSame($country->id, $registration->country_id);
+        $this->assertSame($country->id, $user->country_id);
+        $this->assertSame($country->name, $user->country);
+        $this->assertSame($country->id, $user->profile->country_id);
+    }
+
     public function test_verified_participant_can_render_portal_pages(): void
     {
         $conference = Conference::query()->where('slug', 'icleh-2026')->firstOrFail();

@@ -7,6 +7,7 @@ use App\DTOs\RegistrationData;
 use App\Enums\RegistrationStatus;
 use App\Enums\UserRole;
 use App\Models\AuditLog;
+use App\Models\Country;
 use App\Models\Payment;
 use App\Models\Registration;
 use App\Models\RegistrationFee;
@@ -23,6 +24,7 @@ class RegistrationService
     public function register(User $user, RegistrationData $data): Registration
     {
         return DB::transaction(function () use ($user, $data): Registration {
+            $country = Country::query()->findOrFail($data->countryId);
             $registration = Registration::query()
                 ->with('payment')
                 ->where('conference_id', $data->conferenceId)
@@ -36,6 +38,7 @@ class RegistrationService
 
             $registration->fill([
                 'registration_fee_id' => $data->registrationFeeId,
+                'country_id' => $country->id,
                 'participant_type' => $data->participantType,
                 'attendance_mode' => $data->attendanceMode,
                 'status' => RegistrationStatus::WaitingPayment,
@@ -44,13 +47,19 @@ class RegistrationService
             ]);
             $registration->save();
 
+            $user->forceFill([
+                'country_id' => $country->id,
+                'country' => $country->name,
+            ])->save();
+
             $user->profile()->updateOrCreate(
                 ['user_id' => $user->id],
                 [
                     'full_name' => $user->name,
                     'whatsapp' => $user->whatsapp,
                     'institution' => $user->institution,
-                    'country' => $user->country,
+                    'country_id' => $country->id,
+                    'country' => $country->name,
                     'participant_type' => $data->participantType,
                     'attendance_mode' => $data->attendanceMode,
                 ],
@@ -94,7 +103,7 @@ class RegistrationService
                 ],
             ]));
 
-            return $registration->refresh()->load(['conference', 'fee', 'payment']);
+            return $registration->refresh()->load(['conference', 'country', 'fee', 'payment']);
         });
     }
 

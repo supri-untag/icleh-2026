@@ -28,8 +28,15 @@
         </label>
         <label class="grid gap-2 text-sm font-semibold">
             Country
-            <input name="country" value="{{ old('country', 'Indonesia') }}" required class="rounded-full border border-black/10 px-4 py-3">
-            @error('country') <span class="text-sm text-yellow-500">{{ $message }}</span> @enderror
+            <select name="country_id" required class="rounded-full border border-black/10 px-4 py-3">
+                <option value="">Select country</option>
+                @foreach ($countries as $country)
+                    <option value="{{ $country->id }}" @selected((int) old('country_id', $defaultCountryId) === $country->id)>
+                        {{ $country->name }}
+                    </option>
+                @endforeach
+            </select>
+            @error('country_id') <span class="text-sm text-yellow-500">{{ $message }}</span> @enderror
         </label>
         <label class="grid gap-2 text-sm font-semibold">
             Password

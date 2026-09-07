@@ -24,6 +24,7 @@ class RegistrationRequest extends FormRequest
     {
         return [
             'registration_fee_id' => ['required', Rule::exists('registration_fees', 'id')->where('active', true)],
+            'country_id' => ['required', 'integer', Rule::exists('countries', 'id')->where('active', true)],
             'participant_type' => ['required', 'in:internal_student,general,participant,presenter'],
             'attendance_mode' => ['nullable', 'required_if:participant_type,presenter', 'in:online,offline'],
             'notes' => ['nullable', 'string', 'max:1000'],

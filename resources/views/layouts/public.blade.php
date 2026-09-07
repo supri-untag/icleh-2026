@@ -9,7 +9,7 @@
     <title>@yield('title', $conference->meta_title ?? 'ICLEH 2026')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans antialiased">
+<body class="font-sans antialiased {{ request()->routeIs('home') ? 'summit-page' : '' }}">
     @php
         $isHomePage = request()->routeIs('home');
         $usesHomeHeader = $isHomePage || trim($__env->yieldContent('header_variant', '')) === 'home';
@@ -48,6 +48,12 @@
             : 'landing-button-light ml-5 px-9 py-3';
     @endphp
 
+    @if ($isHomePage)
+        <div class="summit-announcement px-4 py-2 text-center text-xs font-medium">
+            5th ICLEH 2026 <span class="mx-2" aria-hidden="true">·</span> {{ $conference->start_date->format('d') }}–{{ $conference->end_date->format('d M Y') }} <span class="mx-2" aria-hidden="true">·</span> Hybrid Conference
+            <a href="{{ route('register') }}" class="ml-3 font-bold underline underline-offset-4">Register now ↗</a>
+        </div>
+    @endif
     <header class="landing-header {{ $headerClass }}" data-public-header>
         <div class="mx-auto flex max-w-screen-xl flex-col px-8 py-4 md:flex-row md:items-center md:justify-between lg:px-12">
             <div class="flex items-center justify-between py-2 md:py-0">
@@ -92,6 +98,12 @@
             </div>
 
             <nav class="landing-nav hidden items-center gap-3 py-3 text-sm md:flex md:justify-end">
+                @if ($isHomePage)
+                    @foreach (['program' => 'Agenda', 'topics' => 'Tracks', 'speakers' => 'Speakers', 'important-dates' => 'Dates', 'venue' => 'Venue'] as $anchor => $label)
+                        <a href="#{{ $anchor }}" class="landing-header-link rounded-lg px-3 py-2">{{ $label }}</a>
+                    @endforeach
+                    <a href="{{ route('participant.submissions.create') }}" class="landing-header-link px-3 py-2">Paper Submission</a>
+                @else
                 <a class="landing-header-link rounded-lg bg-transparent px-4 py-2 {{ $navLinkClass }} {{ request()->routeIs('home') ? 'landing-header-active '.$navActiveClass : '' }}" href="{{ route('home') }}">Home</a>
                 <details class="landing-nav-details">
                     <summary class="landing-header-link landing-nav-summary rounded-lg px-4 py-2 {{ $navLinkClass }} {{ request()->routeIs(...array_keys($conferenceMenu)) ? 'landing-header-active '.$navActiveClass : '' }}">Conference</summary>
@@ -117,6 +129,7 @@
                         @endforeach
                     </div>
                 </details>
+                @endif
                 @auth
                     <a class="landing-header-portal landing-button {{ $portalButtonClass }}" href="{{ route('participant.dashboard') }}">Portal</a>
                 @else
