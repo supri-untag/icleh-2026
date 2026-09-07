@@ -9,10 +9,9 @@
     <title>@yield('title', $conference->meta_title ?? 'ICLEH 2026')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans antialiased {{ request()->routeIs('home') ? 'summit-page' : '' }}">
+<body class="public-page font-sans antialiased {{ request()->routeIs('home') ? 'summit-page' : '' }}">
     @php
         $isHomePage = request()->routeIs('home');
-        $usesHomeHeader = $isHomePage || trim($__env->yieldContent('header_variant', '')) === 'home';
         $brandLogo = Vite::asset('resources/images/LOGO ICLEH.png');
         $conferenceMenu = [
             'about' => 'About',
@@ -33,19 +32,7 @@
             'publication' => 'Publication',
             'announcements.index' => 'Announcements',
         ];
-        $headerClass = $usesHomeHeader
-            ? 'landing-header-home fixed inset-x-0 top-0 z-50 bg-transparent text-white'
-            : 'fixed inset-x-0 top-0 z-50 bg-cream text-gray-700 shadow-sm';
-        $mobileMenuClass = $usesHomeHeader
-            ? 'border border-white/20 bg-white/15 text-white'
-            : 'bg-white text-gray-900 shadow-sm';
-        $navLinkClass = $usesHomeHeader
-            ? 'text-white/85 hover:text-white'
-            : 'text-gray-700 hover:text-gray-900';
-        $navActiveClass = $usesHomeHeader ? 'text-icleh-gold-light' : 'text-yellow-500';
-        $portalButtonClass = $usesHomeHeader
-            ? 'ml-5 border border-white/25 bg-white/15 px-9 py-3 text-white'
-            : 'landing-button-light ml-5 px-9 py-3';
+        $primaryMenu = ['program' => 'Agenda', 'topics' => 'Tracks', 'speakers' => 'Speakers', 'important-dates' => 'Dates', 'venue' => 'Venue'];
     @endphp
 
     @if ($isHomePage)
@@ -54,16 +41,20 @@
             <a href="{{ route('register') }}" class="ml-3 font-bold underline underline-offset-4">Register now ↗</a>
         </div>
     @endif
-    <header class="landing-header {{ $headerClass }}" data-public-header>
+    <header class="landing-header landing-header-home sticky top-0 z-50 text-white" data-public-header>
         <div class="mx-auto flex max-w-screen-xl flex-col px-8 py-4 md:flex-row md:items-center md:justify-between lg:px-12">
             <div class="flex items-center justify-between py-2 md:py-0">
                 <a href="{{ route('home') }}" class="landing-header-brand inline-flex h-12 items-center overflow-visible rounded-lg md:h-14">
                     <img class="h-12 w-auto max-w-44 origin-left scale-110 object-contain md:h-14 md:max-w-52" src="{{ $brandLogo }}" alt="ICLEH 2026">
                 </a>
                 <details class="landing-mobile-menu relative md:hidden">
-                    <summary class="landing-header-menu-toggle cursor-pointer list-none rounded-full px-4 py-2 text-sm font-semibold {{ $mobileMenuClass }}">Menu</summary>
-                    <nav class="absolute right-0 z-50 mt-3 grid w-72 gap-2 rounded-2xl border border-black/5 bg-white p-3 text-sm font-semibold text-gray-700 shadow-xl">
+                    <summary class="landing-header-menu-toggle cursor-pointer list-none rounded-full px-4 py-2 text-sm font-semibold border border-white/20 bg-white/15 text-white">Menu</summary>
+                    <nav class="absolute right-0 z-50 mt-3 grid max-h-[70vh] w-72 gap-2 overflow-y-auto rounded-2xl border border-black/5 bg-white p-3 text-sm font-semibold text-gray-700 shadow-xl">
                         <a class="rounded-xl px-3 py-2 hover:bg-cream" href="{{ route('home') }}">Home</a>
+                        @foreach ($primaryMenu as $anchor => $label)
+                            <a class="rounded-xl px-3 py-2 hover:bg-cream" href="{{ $isHomePage ? '#'.$anchor : route('home').'#'.$anchor }}">{{ $label }}</a>
+                        @endforeach
+                        <a class="rounded-xl px-3 py-2 hover:bg-cream" href="{{ route('participant.submissions.create') }}">Paper Submission</a>
                         <details class="rounded-xl px-3 py-2 hover:bg-cream">
                             <summary class="cursor-pointer list-none">Conference</summary>
                             <div class="mt-2 grid gap-1 pl-3 text-gray-500">
@@ -98,48 +89,20 @@
             </div>
 
             <nav class="landing-nav hidden items-center gap-3 py-3 text-sm md:flex md:justify-end">
-                @if ($isHomePage)
-                    @foreach (['program' => 'Agenda', 'topics' => 'Tracks', 'speakers' => 'Speakers', 'important-dates' => 'Dates', 'venue' => 'Venue'] as $anchor => $label)
-                        <a href="#{{ $anchor }}" class="landing-header-link rounded-lg px-3 py-2">{{ $label }}</a>
-                    @endforeach
-                    <a href="{{ route('participant.submissions.create') }}" class="landing-header-link px-3 py-2">Paper Submission</a>
-                @else
-                <a class="landing-header-link rounded-lg bg-transparent px-4 py-2 {{ $navLinkClass }} {{ request()->routeIs('home') ? 'landing-header-active '.$navActiveClass : '' }}" href="{{ route('home') }}">Home</a>
-                <details class="landing-nav-details">
-                    <summary class="landing-header-link landing-nav-summary rounded-lg px-4 py-2 {{ $navLinkClass }} {{ request()->routeIs(...array_keys($conferenceMenu)) ? 'landing-header-active '.$navActiveClass : '' }}">Conference</summary>
-                    <div class="landing-dropdown">
-                        @foreach ($conferenceMenu as $route => $label)
-                            <a class="rounded-xl px-3 py-2 hover:bg-cream" href="{{ route($route) }}">{{ $label }}</a>
-                        @endforeach
-                    </div>
-                </details>
-                <details class="landing-nav-details">
-                    <summary class="landing-header-link landing-nav-summary rounded-lg px-4 py-2 {{ $navLinkClass }} {{ request()->routeIs(...array_keys($registrationMenu)) ? 'landing-header-active '.$navActiveClass : '' }}">Registration</summary>
-                    <div class="landing-dropdown">
-                        @foreach ($registrationMenu as $route => $label)
-                            <a class="rounded-xl px-3 py-2 hover:bg-cream" href="{{ route($route) }}">{{ $label }}</a>
-                        @endforeach
-                    </div>
-                </details>
-                <details class="landing-nav-details">
-                    <summary class="landing-header-link landing-nav-summary rounded-lg px-4 py-2 {{ $navLinkClass }} {{ request()->routeIs(...array_keys($updatesMenu)) ? 'landing-header-active '.$navActiveClass : '' }}">Updates</summary>
-                    <div class="landing-dropdown">
-                        @foreach ($updatesMenu as $route => $label)
-                            <a class="rounded-xl px-3 py-2 hover:bg-cream" href="{{ route($route) }}">{{ $label }}</a>
-                        @endforeach
-                    </div>
-                </details>
-                @endif
+                @foreach ($primaryMenu as $anchor => $label)
+                    <a href="{{ $isHomePage ? '#'.$anchor : route('home').'#'.$anchor }}" class="landing-header-link rounded-lg px-3 py-2">{{ $label }}</a>
+                @endforeach
+                <a href="{{ route('participant.submissions.create') }}" class="landing-header-link px-3 py-2">Paper Submission</a>
                 @auth
-                    <a class="landing-header-portal landing-button {{ $portalButtonClass }}" href="{{ route('participant.dashboard') }}">Portal</a>
+                    <a class="landing-header-portal landing-button ml-5 border border-white/25 bg-white/15 px-9 py-3 text-white" href="{{ route('participant.dashboard') }}">Portal</a>
                 @else
-                    <a class="landing-header-portal landing-button {{ $portalButtonClass }}" href="{{ route('login') }}">Portal</a>
+                    <a class="landing-header-portal landing-button ml-5 border border-white/25 bg-white/15 px-9 py-3 text-white" href="{{ route('login') }}">Portal</a>
                 @endauth
             </nav>
         </div>
     </header>
 
-    <main class="{{ $usesHomeHeader ? '' : 'pt-20 md:pt-28' }}">
+    <main>
         @yield('content')
     </main>
 

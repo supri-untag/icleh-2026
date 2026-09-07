@@ -25,6 +25,7 @@
 
 html {
     scroll-behavior: smooth;
+    scroll-padding-top: 110px;
 }
 
 body {
@@ -279,39 +280,49 @@ body {
     background: #8f101c;
 }
 
-.summit-page .landing-header-home {
+.public-page .landing-header-home {
     position: sticky;
     background: #202630;
     color: #fff;
 }
 
-.summit-page .landing-header-home.is-scrolled {
+.public-page .landing-header-home.is-scrolled {
     background: rgb(32 38 48 / 0.97);
 }
 
-.summit-page .landing-header-home .landing-header-link {
+.public-page .landing-header-home .landing-header-link {
     color: #fff;
 }
 
-.summit-page .landing-header-home .landing-header-link:hover {
+.public-page .landing-header-home .landing-header-link:hover {
     color: #f5d873;
 }
 
-.summit-page .landing-header > div {
+.public-page .landing-header > div {
     max-width: 1320px;
     padding: 0.85rem 1.5rem;
 }
 
-.summit-page .landing-header-brand {
+.public-page .landing-header-brand {
     padding: 0.35rem 0.65rem;
     background: white;
 }
 
-.summit-page .landing-header-brand img {
+.public-page .landing-header-brand img {
     transform: none;
 }
 
-.summit-page .landing-header-portal {
+.public-page .landing-header-menu-toggle,
+.public-page .landing-header-home.is-scrolled .landing-header-menu-toggle,
+.public-page .landing-header-home.is-scrolled .landing-header-portal {
+    color: #fff;
+    background: rgb(255 255 255 / 0.15);
+    border-color: rgb(255 255 255 / 0.25);
+}
+
+.public-page .landing-header-portal {
+    border-radius: 0.75rem;
+    font-size: 0.9rem;
     margin-left: 0.5rem;
     padding: 0.7rem 1.3rem;
 }
@@ -382,7 +393,6 @@ body {
     margin-bottom: 0;
     padding-block: clamp(3rem, 6vw, 5rem);
     border-bottom: 1px solid #eceef0;
-    scroll-margin-top: 100px;
 }
 
 .summit-content .text-darken {
@@ -452,7 +462,7 @@ body {
     background: #202630;
 }
 
-.summit-page :is(a, summary):focus-visible {
+.public-page :is(a, summary):focus-visible {
     outline: 3px solid #e2b13c;
     outline-offset: 4px;
 }
@@ -466,16 +476,16 @@ body {
 }
 
 @media (max-width: 1023px) {
-    .summit-page .landing-header .landing-nav {
+    .public-page .landing-header .landing-nav {
         display: none;
     }
 
-    .summit-page .landing-header .landing-mobile-menu {
+    .public-page .landing-header .landing-mobile-menu {
         display: block;
     }
 
-    .summit-page .landing-header > div,
-    .summit-page .landing-header > div > div {
+    .public-page .landing-header > div,
+    .public-page .landing-header > div > div {
         width: 100%;
     }
 
