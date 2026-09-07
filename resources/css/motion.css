@@ -1,0 +1,48 @@
+@media (prefers-reduced-motion: no-preference) {
+    :is(.landing-button, .btn) {
+        transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+    }
+
+    :is(.landing-header-link, .sidebar a, .landing-dropdown a) {
+        transition: color 180ms ease, background-color 180ms ease;
+    }
+
+    .journey-icon {
+        transition: transform 220ms ease;
+    }
+
+    .landing-mobile-menu[open] > nav,
+    .landing-nav-details[open] > .landing-dropdown {
+        animation: menu-appear 180ms ease-out;
+    }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .btn:not(:disabled):not(.disabled):hover {
+        transform: translateY(-1px);
+    }
+
+    .journey-step:hover .journey-icon {
+        transform: translateY(-3px);
+    }
+}
+
+@keyframes menu-appear {
+    from { opacity: 0; translate: 0 -4px; }
+    to { opacity: 1; translate: 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .landing-button:hover {
+        transform: none;
+    }
+}

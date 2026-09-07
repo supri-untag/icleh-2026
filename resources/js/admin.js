@@ -11,6 +11,7 @@ import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import select2 from 'select2';
 import Swal from 'sweetalert2';
+import './motion';
 
 window.$ = window.jQuery = $;
 window.axios = axios;

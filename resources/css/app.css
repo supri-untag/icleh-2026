@@ -349,13 +349,38 @@ body {
         top: 52px;
         bottom: 0;
         left: 25px;
-        border-left: 3px dotted #d7a35c;
+        width: 3px;
+        background-image: radial-gradient(circle, #d7a35c 1.5px, transparent 1.5px);
+        background-size: 3px 11px;
+        background-repeat: repeat-y;
         content: '';
     }
     .journey-number { flex-shrink: 0; }
     .journey-step-content { flex: 1; }
     .journey-icon { margin-top: 0; }
     .journey-step p { max-width: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .journey-path > path {
+        animation: journey-path-flow 1.2s linear infinite;
+    }
+}
+
+@media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+    .journey-step:not(:last-child)::before {
+        animation: journey-mobile-flow 1.2s linear infinite;
+    }
+}
+
+@keyframes journey-path-flow {
+    from { stroke-dashoffset: 0; }
+    to { stroke-dashoffset: -11; }
+}
+
+@keyframes journey-mobile-flow {
+    from { background-position: 0 0; }
+    to { background-position: 0 11px; }
 }
 
 /* Conference landing page */
