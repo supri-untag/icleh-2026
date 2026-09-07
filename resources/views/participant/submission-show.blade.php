@@ -198,6 +198,23 @@
                         <h3 class="h5 mb-0">Documents</h3>
                     </div>
                     <div class="card-body d-grid gap-2">
+                        @forelse ($submission->files as $file)
+                            <div class="border rounded p-3">
+                                <p class="fw-semibold text-break mb-2">{{ $file->original_filename }}</p>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="{{ route('participant.submissions.file', [$submission, $file]) }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm">View file</a>
+                                    <a href="{{ route('participant.submissions.file', [$submission, $file, 'download' => 1]) }}" class="btn btn-primary btn-sm">Download</a>
+                                </div>
+                            </div>
+                        @empty
+                            @if ($submission->abstract_file)
+                                <a href="{{ route('participant.submissions.file', $submission) }}" target="_blank" rel="noopener" class="btn btn-outline-primary">View abstract file</a>
+                                <a href="{{ route('participant.submissions.file', [$submission, 'download' => 1]) }}" class="btn btn-primary">Download abstract</a>
+                            @else
+                                <p class="text-secondary mb-0">No files uploaded.</p>
+                            @endif
+                        @endforelse
+                        <p class="small text-secondary mb-2">PDF files open in your browser. Other formats are downloaded.</p>
                         @if ($submission->loaDocument)
                             <a href="{{ route('participant.loa.show', $submission->loaDocument) }}" class="btn btn-primary fw-semibold">
                                 <i class="ti ti-file-certificate me-1"></i>Open LoA

@@ -86,6 +86,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/submissions/create', [SubmissionController::class, 'create'])->name('participant.submissions.create');
     Route::post('/submissions', [SubmissionController::class, 'store'])->name('participant.submissions.store');
     Route::get('/submissions/{submission}', [SubmissionController::class, 'show'])->name('participant.submissions.show');
+    Route::get('/submissions/{submission}/files/{submissionFile?}', [SubmissionController::class, 'file'])->name('participant.submissions.file');
     Route::get('/loa', [DocumentController::class, 'index'])->name('participant.loa');
     Route::get('/loa/{loaDocument}', [DocumentController::class, 'loa'])->name('participant.loa.show');
     Route::get('/participant/program', [DocumentController::class, 'index'])->name('participant.program');
